@@ -1,7 +1,7 @@
 # ASME PONGO
 
 **Professional Outreach & Network Geographic Overview**
-
+**NOT OFFICIALLY TIED TO ASME, THIS IS AN ECLIPSE PROJECT**
 > Mapping ASME Professional and Student Sections, jurisdictions, and geographic reach across the United States.
 
 Created by **J. Manuel Melendez**
