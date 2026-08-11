@@ -1,0 +1,810 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>ASME PONGO | Professional Outreach &amp; Network Geographic Overview</title>
+<style>
+:root{--bg:#f4f7fb;--panel:#ffffff;--text:#182230;--muted:#667085;--border:#d7dee8;--accent:#1268a8;--accent-soft:#dcecf8;--student:#c05a19;--student-soft:#f8e8dd;--good:#16836b;--warn:#b7791f;--gap:#c2413a;--heat:#7b4ab5}
+*{box-sizing:border-box}
+body{margin:0;font-family:Inter,Arial,Helvetica,sans-serif;background:var(--bg);color:var(--text)}
+.wrap{max-width:1440px;margin:auto;padding:22px}
+h1{margin:0;font-size:28px} h2{font-size:18px;margin:0 0 12px} h3{font-size:15px;margin:0 0 8px}
+.sub{color:var(--muted);margin:5px 0 0}
+.toolbar,.panel,.metric{background:var(--panel);border:1px solid var(--border);border-radius:14px}
+.toolbar{padding:14px;margin-top:16px}
+.controls-grid{display:grid;grid-template-columns:1.2fr 1fr 1fr 1fr;gap:12px}
+label{display:block;font-size:13px;font-weight:700;margin-bottom:5px}
+input[type=text],select{width:100%;border:1px solid var(--border);border-radius:9px;padding:9px 10px;background:#fff;color:var(--text)}
+input[type=range]{width:100%}
+.range-row{display:grid;grid-template-columns:1fr 68px;gap:10px;align-items:center}
+.range-value{font-weight:800;font-size:18px;text-align:right}
+.toggles{display:flex;gap:16px;flex-wrap:wrap;margin-top:12px;font-size:13px;color:var(--muted)}
+.toggle-label{display:flex;gap:6px;align-items:center;margin:0;font-weight:600}
+.metrics{display:grid;grid-template-columns:repeat(6,1fr);gap:10px;margin-top:12px}
+.metric{padding:12px} .metric .k{font-size:12px;color:var(--muted)} .metric .v{font-size:22px;font-weight:800;margin-top:4px}
+.dashboard{display:grid;grid-template-columns:minmax(0,1fr) 320px;gap:14px;margin-top:14px}
+.map-panel{background:var(--panel);border:1px solid var(--border);border-radius:14px;padding:10px;position:relative;min-width:0}
+svg{width:100%;height:auto;display:block}
+.state{fill:#f8fafc;stroke:#c9d2df;stroke-width:.75}
+.coverage{fill:var(--accent);fill-opacity:.10;stroke:var(--accent);stroke-opacity:.28;stroke-width:.65}
+.jurisdiction{fill:#16836b;fill-opacity:.20;stroke:#0e6b59;stroke-opacity:.72;stroke-width:.55}
+.jurisdiction-overlap{fill:#16836b;stroke:#0e6b59;stroke-opacity:.78;stroke-width:.65}
+.jurisdiction-partial{fill:url(#partialHatch);stroke:#0e6b59;stroke-opacity:.95;stroke-width:1;stroke-dasharray:4 2}
+.point{fill:var(--accent);stroke:white;stroke-width:1.2;cursor:pointer}
+.student-point{fill:var(--student);stroke:white;stroke-width:1.2;cursor:pointer}
+.student-point.selected{fill:#7c2d12;stroke-width:2}
+.student-coverage{fill:var(--student);fill-opacity:.09;stroke:var(--student);stroke-opacity:.32;stroke-width:.7}
+.point.selected{fill:#d96b18;stroke-width:2}
+.sim-point{fill:#111827;stroke:white;stroke-width:1.6}
+.sim-coverage{fill:#111827;fill-opacity:.08;stroke:#111827;stroke-dasharray:5 4;stroke-width:1.4}
+.grid-heat{stroke:none}
+.grid-gap{fill:var(--gap);fill-opacity:.36}
+.tip{position:absolute;display:none;pointer-events:none;background:white;border:1px solid var(--border);border-radius:9px;padding:8px 10px;font-size:12px;max-width:260px;box-shadow:0 5px 18px rgba(0,0,0,.12)}
+.side{display:flex;flex-direction:column;gap:14px}
+.panel{padding:14px}
+.section-title{font-weight:800;font-size:16px}
+.small{font-size:12px;color:var(--muted)}
+.kv{display:grid;grid-template-columns:110px 1fr;gap:5px 8px;margin-top:10px;font-size:13px}
+.kv div:nth-child(odd){color:var(--muted)}
+.neighbor{padding:7px 0;border-top:1px solid #edf0f4;font-size:13px;display:flex;justify-content:space-between;gap:8px}
+.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+button{border:1px solid var(--border);background:white;color:var(--text);border-radius:9px;padding:8px 10px;font-weight:700;cursor:pointer}
+button.primary{background:var(--accent);color:white;border-color:var(--accent)}
+button.danger{color:var(--gap)}
+.legend{display:flex;gap:16px;flex-wrap:wrap;font-size:12px;color:var(--muted);margin:9px 3px 2px}
+.legend span{display:flex;align-items:center;gap:5px}
+.dot{width:10px;height:10px;border-radius:50%;background:var(--accent);display:inline-block}
+.swatch{width:18px;height:10px;background:rgba(18,104,168,.12);border:1px solid var(--accent);border-radius:6px;display:inline-block}
+.gap-swatch{width:18px;height:10px;background:rgba(194,65,58,.36);display:inline-block}
+.heat-swatch{width:18px;height:10px;background:rgba(123,74,181,.45);display:inline-block}
+.jur-swatch{width:18px;height:10px;background:rgba(22,131,107,.20);border:1px solid #0e6b59;display:inline-block;border-radius:2px}
+.partial-swatch{width:18px;height:10px;border:1px dashed #0e6b59;display:inline-block;background:repeating-linear-gradient(45deg,rgba(22,131,107,.28),rgba(22,131,107,.28) 2px,transparent 2px,transparent 5px)}
+.note{font-size:12px;color:var(--muted);margin-top:10px}
+.future{background:#f9fafb;border:1px dashed var(--border);border-radius:10px;padding:10px;margin-top:10px;font-size:12px;color:var(--muted)}
+.section-chip{display:inline-flex;align-items:center;gap:6px;background:var(--accent-soft);color:var(--text);border:1px solid var(--border);border-radius:999px;padding:5px 8px;font-size:12px}
+.student-chip{background:var(--student-soft)}
+.student-dot{width:10px;height:10px;border-radius:50%;background:var(--student);display:inline-block}
+.student-swatch{width:18px;height:10px;background:rgba(192,90,25,.10);border:1px solid var(--student);border-radius:6px;display:inline-block}
+.section-chip button{border:0;background:transparent;padding:0 2px;font-size:14px;line-height:1;color:var(--muted)}
+.status{padding:100px;text-align:center;color:var(--muted)}
+@media(max-width:1100px){.metrics{grid-template-columns:repeat(3,1fr)}.dashboard{grid-template-columns:1fr}.side{display:grid;grid-template-columns:1fr 1fr}}
+@media(max-width:760px){.wrap{padding:12px}h1{font-size:22px}.controls-grid{grid-template-columns:1fr 1fr}.metrics{grid-template-columns:repeat(2,1fr)}.side{display:block}.panel{margin-top:10px}}
+@media(max-width:480px){.controls-grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div>
+      <div style="display:flex;align-items:baseline;gap:12px;flex-wrap:wrap">
+        <h1 style="margin-bottom:2px">ASME PONGO</h1>
+        <span style="font-size:14px;font-weight:700;color:#1F4E78">Professional Outreach &amp; Network Geographic Overview</span>
+      </div>
+      <p style="margin-top:5px">Mapping ASME Professional and Student Sections, jurisdictions, and geographic reach across the United States.</p>
+    </div>
+  </header>
+
+  <section class="toolbar">
+    <div class="controls-grid">
+      <div>
+        <label for="sectionPicker">Professional Sections</label>
+        <div style="display:grid;grid-template-columns:1fr auto;gap:8px">
+          <select id="sectionPicker">
+            <option value="">Choose a section…</option>
+          </select>
+          <button id="addSectionBtn" type="button">Add</button>
+        </div>
+        <div id="selectedSections" style="display:flex;gap:6px;flex-wrap:wrap;margin-top:8px"></div>
+        <div class="actions" style="margin-top:8px">
+          <button id="clearSectionsBtn" type="button">Clear selected</button>
+          <button id="selectAllSectionsBtn" type="button">Select all</button>
+        </div>
+      </div>
+      <div>
+        <label for="studentPicker">Student Sections</label>
+        <div style="display:grid;grid-template-columns:1fr auto;gap:8px">
+          <select id="studentPicker">
+            <option value="">Choose a student section…</option>
+          </select>
+          <button id="addStudentBtn" type="button">Add</button>
+        </div>
+        <div id="selectedStudents" style="display:flex;gap:6px;flex-wrap:wrap;margin-top:8px"></div>
+        <div class="actions" style="margin-top:8px">
+          <button id="clearStudentsBtn" type="button">Clear students</button>
+          <button id="selectAllStudentsBtn" type="button">Select all students</button>
+        </div>
+      </div>
+      <div>
+        <label for="stateFilter">State</label>
+        <select id="stateFilter"><option value="">All states</option></select>
+      </div>
+      <div>
+        <label for="territoryFilter">Territory</label>
+        <select id="territoryFilter">
+          <option value="">All territories</option>
+          <option>Northeast</option><option>Midwest</option><option>Southeast</option><option>Southwest</option><option>Northwest</option>
+        </select>
+      </div>
+      <div>
+        <label for="mode">Analysis mode</label>
+        <select id="mode">
+          <option value="coverage">Coverage circles</option>
+          <option value="overlap">Overlap heatmap</option>
+          <option value="gaps">Coverage gaps</option>
+        </select>
+      </div>
+    </div>
+
+    <div style="margin-top:12px">
+      <label for="radius">Coverage radius</label>
+      <div class="range-row">
+        <input id="radius" type="range" min="10" max="150" step="5" value="50">
+        <div class="range-value"><span id="radiusValue">50</span> mi</div>
+      </div>
+    </div>
+    <div style="margin-top:12px">
+      <label for="studentRadius">Student Section modeled radius</label>
+      <div class="range-row">
+        <input id="studentRadius" type="range" min="10" max="150" step="5" value="25">
+        <div class="range-value"><span id="studentRadiusValue">25</span> mi</div>
+      </div>
+    </div>
+
+    <div class="toggles">
+      <label class="toggle-label"><input id="showCoverage" type="checkbox" checked> Modeled coverage areas</label>
+      <label class="toggle-label"><input id="showJurisdiction" type="checkbox"> Official ASME jurisdiction</label>
+      <label class="toggle-label"><input id="showPoints" type="checkbox" checked> Professional headquarters</label>
+      <label class="toggle-label"><input id="showStudents" type="checkbox" checked> Student headquarters</label>
+      <label class="toggle-label"><input id="showStudentCoverage" type="checkbox" checked> Student modeled coverage</label>
+      <label class="toggle-label"><input id="includeStudentsMetrics" type="checkbox"> Include students in modeled coverage metrics</label>
+      <label class="toggle-label"><input id="includeSimulator" type="checkbox" checked> Include simulated hub in metrics</label>
+    </div>
+  </section>
+
+  <section class="metrics">
+    <div class="metric"><div class="k">Visible professional</div><div class="v" id="mVisible">—</div></div>
+    <div class="metric"><div class="k">Visible student</div><div class="v" id="mStudents">—</div></div>
+    <div class="metric"><div class="k">Estimated land covered</div><div class="v" id="mCovered">—</div></div>
+    <div class="metric"><div class="k">Max overlap</div><div class="v" id="mOverlap">—</div></div>
+    <div class="metric"><div class="k">Avg. nearest section</div><div class="v" id="mNearest">—</div></div>
+    <div class="metric"><div class="k">Isolated beyond radius</div><div class="v" id="mIsolated">—</div></div>
+    <div class="metric"><div class="k">Simulated hub</div><div class="v" id="mSim">None</div></div>
+  </section>
+
+  <div class="dashboard">
+    <section class="map-panel">
+      <div id="status" class="status">Loading U.S. geometry…</div>
+      <svg id="map" viewBox="0 0 975 610" role="img" aria-label="Interactive geographic analysis of ASME Professional Section headquarters in the continental United States"></svg>
+      <div id="tip" class="tip"></div>
+      <div class="legend">
+        <span><i class="dot"></i> Professional headquarters</span>
+        <span><i class="student-dot"></i> Student headquarters</span>
+        <span><i class="student-swatch"></i> Student modeled radius</span>
+        <span><i class="swatch"></i> Modeled radius</span>
+        <span><i class="jur-swatch"></i> Official county jurisdiction</span>
+        <span><i class="partial-swatch"></i> Partial-county indicator</span>
+        <span><i class="heat-swatch"></i> Higher overlap</span>
+        <span><i class="gap-swatch"></i> Sampled uncovered land</span>
+      </div>
+      <div class="note">Professional and Student modeled coverage are approximate planning indicators derived from headquarters/campus city-center locations and sampled lower-48 land points. The separate Official ASME Jurisdiction layer uses counties/parishes listed by ASME. Hatched counties indicate an ASME description that covers only part of that county; the exact sub-county boundary is not represented.</div>
+    </section>
+
+    <aside class="side">
+      <section class="panel">
+        <h2>Section details</h2>
+        <div id="sectionEmpty" class="small">Click a headquarters marker to inspect a section.</div>
+        <div id="sectionDetails" style="display:none">
+          <div class="section-title" id="dName"></div>
+          <div class="small" id="dPlace"></div>
+          <div class="kv">
+            <div>Territory</div><div id="dTerritory"></div>
+            <div>Selected radius</div><div id="dRadius"></div>
+            <div>Official jurisdiction</div><div id="dJurisdiction"></div>
+            <div>Nearest section</div><div id="dNearest"></div>
+            <div>Distance</div><div id="dNearestDist"></div>
+          </div>
+          <h3 style="margin-top:14px">Three nearest sections</h3>
+          <div id="neighbors"></div>
+          <div class="actions"><button id="focusBtn">Show only this section</button><button id="resetBtn">Reset filters</button></div>
+        </div>
+      </section>
+
+      <section class="panel">
+        <h2>Student Section details</h2>
+        <div id="studentEmpty" class="small">Click an orange Student Section marker to inspect it.</div>
+        <div id="studentDetails" style="display:none">
+          <div class="section-title" id="sdName"></div>
+          <div class="small" id="sdPlace"></div>
+          <div class="kv">
+            <div>Type</div><div>Student Section</div>
+            <div>Modeled radius</div><div id="sdRadius"></div>
+            <div>Nearest Professional</div><div id="sdNearestPro"></div>
+            <div>Distance</div><div id="sdNearestDist"></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="panel">
+        <h2>Expansion simulator</h2>
+        <div class="small">Choose “Place simulated hub,” then click anywhere on the map. The hypothetical hub uses the same radius slider.</div>
+        <div class="actions">
+          <button id="simBtn" class="primary">Place simulated hub</button>
+          <button id="clearSimBtn" class="danger">Clear hub</button>
+        </div>
+        <div id="simDetails" class="kv" style="display:none">
+          <div>Approx. location</div><div id="sLoc"></div>
+          <div>Nearest section</div><div id="sNear"></div>
+          <div>Distance</div><div id="sDist"></div>
+          <div>New sampled coverage</div><div id="sGain"></div>
+        </div>
+      </section>
+
+      <section class="panel">
+        <h2>Export & sharing</h2>
+        <div class="small">Exports reflect the current filters and radius.</div>
+        <div class="actions">
+          <button id="csvBtn">Export CSV</button>
+          <button id="pngBtn">Export map PNG</button>
+          <button id="linkBtn">Copy settings URL</button>
+        </div>
+        <div id="copyMsg" class="small" style="margin-top:8px"></div>
+      </section>
+
+      <section class="panel">
+        <h2>Additional data layers</h2>
+        <div class="future"><strong>Member density:</strong> add ZIP/county-level ASME membership counts to compare actual membership concentration with section reach.</div>
+        <div class="future"><strong>Student Section layer:</strong> Student markers use university/campus city-center coordinates. Verify current section status against the ASME Student Section Directory before formal decisions.</div>
+      </section>
+    </aside>
+  </div>
+</div>
+
+<script type="module">
+import * as d3 from "https://cdn.jsdelivr.net/npm/d3@7.9.0/+esm";
+import {feature} from "https://cdn.jsdelivr.net/npm/topojson-client@3.1.0/+esm";
+import us from "https://cdn.jsdelivr.net/npm/us-atlas@3.0.1/counties-albers-10m.json/+esm";
+
+const raw = [
+["Anthracite-Lehigh Valley Section","Allentown","PA",40.6023,-75.4714],["Arizona Section","Phoenix","AZ",33.4484,-112.0740],
+["Arkansas Section","Little Rock","AR",34.7465,-92.2896],["Atlanta Section","Atlanta","GA",33.7490,-84.3880],
+["Baltimore Section","Baltimore","MD",39.2904,-76.6122],["Baton Rouge Section","Baton Rouge","LA",30.4515,-91.1871],
+["Birmingham Section","Birmingham","AL",33.5186,-86.8104],["Bluegrass Section","Lexington","KY",38.0406,-84.5037],
+["Boston Section","Boston","MA",42.3601,-71.0589],["Buffalo Section","Buffalo","NY",42.8864,-78.8784],
+["California Inland Section","San Bernardino","CA",34.1083,-117.2898],["Canaveral Section","Cocoa Beach","FL",28.3200,-80.6076],
+["Carolina Section","Winston-Salem","NC",36.0999,-80.2442],["Central Indiana Section","Indianapolis","IN",39.7684,-86.1581],
+["Central Iowa Section","Ames","IA",42.0308,-93.6319],["Central Kansas Section","Wichita","KS",37.6872,-97.3301],
+["Central Oklahoma Section","Oklahoma City","OK",35.4676,-97.5164],["Central Pennsylvania Section","State College","PA",40.7934,-77.8600],
+["Central Savannah River Area Section","Augusta","GA",33.4735,-82.0105],["Central Texas Section","Austin","TX",30.2672,-97.7431],
+["Central Virginia Section","Richmond","VA",37.5407,-77.4360],["Channel Islands Section","Oxnard","CA",34.1975,-119.1771],
+["Charleston Section","Charleston","SC",32.7765,-79.9311],["Chattanooga Section","Chattanooga","TN",35.0456,-85.3097],
+["Chicago Section","Chicago","IL",41.8781,-87.6298],["Cincinnati Section","Cincinnati","OH",39.1031,-84.5120],
+["Coastal Carolina Section","Wilmington","NC",34.2257,-77.9447],["Colorado Section","Denver","CO",39.7392,-104.9903],
+["Columbia Basin Section","Richland","WA",46.2857,-119.2845],["Columbus Ohio Section","Columbus","OH",39.9612,-82.9988],
+["Dayton Section","Dayton","OH",39.7589,-84.1916],["East Tennessee Section","Knoxville","TN",35.9606,-83.9207],
+["Eastern North Carolina Section","Raleigh","NC",35.7796,-78.6382],["Erie Section","Erie","PA",42.1292,-80.0851],
+["Florida Section","Orlando","FL",28.5383,-81.3792],["Florida West Coast Section","St. Petersburg","FL",27.7676,-82.6403],
+["Fort Wayne Section","Fort Wayne","IN",41.0793,-85.1394],["Fox Valley Section","Naperville","IL",41.7508,-88.1535],
+["Greater Trenton Section","Trenton","NJ",40.2171,-74.7429],["Greenville Section","Greenville","SC",34.8526,-82.3940],
+["Hartford Section","Hartford","CT",41.7658,-72.6734],["Holston Section","Kingsport","TN",36.5484,-82.5618],
+["Hudson Mohawk Section","Schenectady","NY",42.8142,-73.9396],["Idaho Section","Idaho Falls","ID",43.4917,-112.0339],
+["Inland Empire Section","Spokane","WA",47.6588,-117.4260],["Kansas City Section","Kansas City","MO",39.0997,-94.5786],
+["Long Island Section","Hicksville","NY",40.7684,-73.5251],["Los Angeles Section","Los Angeles","CA",34.0522,-118.2437],
+["Louisville Section","Louisville","KY",38.2527,-85.7585],["Metro Detroit Section","Detroit","MI",42.3314,-83.0458],
+["Metropolitan Section","New York","NY",40.7128,-74.0060],["Miami Section","Miami","FL",25.7617,-80.1918],
+["Mid-Continent Section","Tulsa","OK",36.1540,-95.9928],["Midlands Section","Columbia","SC",34.0007,-81.0348],
+["Milwaukee Section","Milwaukee","WI",43.0389,-87.9065],["Minnesota Section","St. Paul","MN",44.9537,-93.0900],
+["Mississippi Section","Jackson","MS",32.2988,-90.1848],["Mobile Gulf Coast Section","Mobile","AL",30.6954,-88.0399],
+["Mohawk Valley Section","Utica","NY",43.1009,-75.2327],["Montana Section","Billings","MT",45.7833,-108.5007],
+["Nashville Section","Nashville","TN",36.1627,-86.7816],["Nebraska Section","Lincoln","NE",40.8136,-96.7026],
+["New Mexico Section","Albuquerque","NM",35.0844,-106.6504],["New Orleans Section","New Orleans","LA",29.9511,-90.0715],
+["North Alabama Section","Huntsville","AL",34.7304,-86.5861],["North Jersey Section","Sparta","NJ",41.0334,-74.6385],
+["Northeast Florida Section","Jacksonville","FL",30.3322,-81.6557],["Northeast Ohio Section","Cleveland","OH",41.4993,-81.6944],
+["Northeast Texas Section","Tyler","TX",32.3513,-95.3011],["Northern New England Section","Durham","NH",43.1339,-70.9264],
+["Northern New Mexico Section","Los Alamos","NM",35.8800,-106.3031],["Northwest Florida Section","Pensacola","FL",30.4213,-87.2169],
+["Northwest Ohio Section","Toledo","OH",41.6528,-83.5379],["Oregon Section","Portland","OR",45.5152,-122.6784],
+["Palm Beach Section","West Palm Beach","FL",26.7153,-80.0534],["Panhandle Plains Section","Amarillo","TX",35.2220,-101.8313],
+["Pee Dee Section","Hartsville","SC",34.3740,-80.0734],["Philadelphia Section","Philadelphia","PA",39.9526,-75.1652],
+["Piedmont-Carolina Section","Charlotte","NC",35.2271,-80.8431],["Pittsburgh Section","Pittsburgh","PA",40.4406,-79.9959],
+["Puget Sound Section","Tacoma","WA",47.2529,-122.4443],["Rochester Section","Rochester","NY",43.1566,-77.6088],
+["Sabine Section","Beaumont","TX",30.0802,-94.1266],["Salish Sea Section","Everett","WA",47.9790,-122.2021],
+["Santa Clara Valley Section","San Jose","CA",37.3382,-121.8863],["South Texas Section","Houston","TX",29.7604,-95.3698],
+["St. Joseph Valley Section","South Bend","IN",41.6764,-86.2520],["St. Louis Section","St. Louis","MO",38.6270,-90.1994],
+["Susquehanna Section","Harrisburg","PA",40.2732,-76.8867],["Tallahassee Section","Tallahassee","FL",30.4383,-84.2807],
+["Treasure Valley Section","Boise","ID",43.6150,-116.2023],["Virginia Section","Blacksburg","VA",37.2296,-80.4139],
+["Washington DC Section","Washington","DC",38.9072,-77.0369],["West Texas Section","Abilene","TX",32.4487,-99.7331],
+["West Virginia Section","Charleston","WV",38.3498,-81.6326],["Western Washington Section","Seattle","WA",47.6062,-122.3321]
+].map(d=>({name:d[0],city:d[1],state:d[2],lat:d[3],lon:d[4]}));
+
+const territoryByState={
+  CT:"Northeast",DC:"Northeast",DE:"Northeast",MA:"Northeast",MD:"Northeast",ME:"Northeast",NH:"Northeast",NJ:"Northeast",NY:"Northeast",PA:"Northeast",RI:"Northeast",VT:"Northeast",WV:"Northeast",
+  IA:"Midwest",IL:"Midwest",IN:"Midwest",KS:"Midwest",MI:"Midwest",MN:"Midwest",MO:"Midwest",NE:"Midwest",ND:"Midwest",OH:"Midwest",SD:"Midwest",WI:"Midwest",
+  AL:"Southeast",AR:"Southeast",FL:"Southeast",GA:"Southeast",KY:"Southeast",LA:"Southeast",MS:"Southeast",NC:"Southeast",SC:"Southeast",TN:"Southeast",VA:"Southeast",
+  AZ:"Southwest",CA:"Southwest",CO:"Southwest",NM:"Southwest",OK:"Southwest",TX:"Southwest",
+  ID:"Northwest",MT:"Northwest",OR:"Northwest",UT:"Northwest",WA:"Northwest",WY:"Northwest"
+};
+raw.forEach(d=>d.territory=territoryByState[d.state]||"Other");
+
+const studentRaw=[{"name":"Arizona State University","city":"Tempe","state":"AZ","lat":33.4255,"lon":-111.94,"type":"Student Section"},{"name":"Northern Arizona University","city":"Flagstaff","state":"AZ","lat":35.1983,"lon":-111.6513,"type":"Student Section"},{"name":"University of Arizona","city":"Tucson","state":"AZ","lat":32.2319,"lon":-110.9501,"type":"Student Section"},{"name":"University of Arkansas","city":"Fayetteville","state":"AR","lat":36.0822,"lon":-94.1719,"type":"Student Section"},{"name":"Auburn University","city":"Auburn","state":"AL","lat":32.6099,"lon":-85.4808,"type":"Student Section"},{"name":"University of Alabama","city":"Tuscaloosa","state":"AL","lat":33.2098,"lon":-87.5692,"type":"Student Section"},{"name":"University of Alabama at Birmingham","city":"Birmingham","state":"AL","lat":33.5021,"lon":-86.8064,"type":"Student Section"},{"name":"University of Alabama in Huntsville","city":"Huntsville","state":"AL","lat":34.7304,"lon":-86.5861,"type":"Student Section"},{"name":"University of South Alabama","city":"Mobile","state":"AL","lat":30.6954,"lon":-88.0399,"type":"Student Section"},{"name":"Boise State University","city":"Boise","state":"ID","lat":43.615,"lon":-116.2023,"type":"Student Section"},{"name":"Idaho State University","city":"Pocatello","state":"ID","lat":42.8713,"lon":-112.4455,"type":"Student Section"},{"name":"University of Idaho","city":"Moscow","state":"ID","lat":46.7324,"lon":-117.0002,"type":"Student Section"},{"name":"Bradley University","city":"Peoria","state":"IL","lat":40.6936,"lon":-89.589,"type":"Student Section"},{"name":"Illinois Institute of Technology","city":"Chicago","state":"IL","lat":41.8349,"lon":-87.627,"type":"Student Section"},{"name":"Illinois State University","city":"Normal","state":"IL","lat":40.5142,"lon":-88.9906,"type":"Student Section"},{"name":"Northern Illinois University","city":"DeKalb","state":"IL","lat":41.9295,"lon":-88.7504,"type":"Student Section"},{"name":"Northwestern University","city":"Evanston","state":"IL","lat":42.0451,"lon":-87.6877,"type":"Student Section"},{"name":"University of Illinois Chicago","city":"Chicago","state":"IL","lat":41.8708,"lon":-87.6505,"type":"Student Section"},{"name":"University of Illinois Urbana-Champaign","city":"Champaign","state":"IL","lat":40.1164,"lon":-88.2434,"type":"Student Section"},{"name":"Purdue University","city":"West Lafayette","state":"IN","lat":40.4259,"lon":-86.9081,"type":"Student Section"},{"name":"University of Notre Dame","city":"Notre Dame","state":"IN","lat":41.7002,"lon":-86.2379,"type":"Student Section"},{"name":"Iowa State University","city":"Ames","state":"IA","lat":42.0308,"lon":-93.6319,"type":"Student Section"},{"name":"University of Iowa","city":"Iowa City","state":"IA","lat":41.6611,"lon":-91.5302,"type":"Student Section"},{"name":"Kansas State University","city":"Manhattan","state":"KS","lat":39.1836,"lon":-96.5717,"type":"Student Section"},{"name":"University of Kansas","city":"Lawrence","state":"KS","lat":38.9717,"lon":-95.2353,"type":"Student Section"},{"name":"Wichita State University","city":"Wichita","state":"KS","lat":37.7191,"lon":-97.2936,"type":"Student Section"},{"name":"University of Kentucky","city":"Lexington","state":"KY","lat":38.0406,"lon":-84.5037,"type":"Student Section"},{"name":"University of Louisville","city":"Louisville","state":"KY","lat":38.2527,"lon":-85.7585,"type":"Student Section"},{"name":"Louisiana State University","city":"Baton Rouge","state":"LA","lat":30.4133,"lon":-91.18,"type":"Student Section"},{"name":"Louisiana Tech University","city":"Ruston","state":"LA","lat":32.5232,"lon":-92.6379,"type":"Student Section"},{"name":"University of Louisiana-Lafayette","city":"Lafayette","state":"LA","lat":30.2241,"lon":-92.0198,"type":"Student Section"},{"name":"University of Maine","city":"Orono","state":"ME","lat":44.8831,"lon":-68.6719,"type":"Student Section"},{"name":"Johns Hopkins University","city":"Baltimore","state":"MD","lat":39.3299,"lon":-76.6205,"type":"Student Section"},{"name":"University of Maryland - Baltimore County","city":"Baltimore","state":"MD","lat":39.2557,"lon":-76.7111,"type":"Student Section"},{"name":"University of Maryland - College Park","city":"College Park","state":"MD","lat":38.9897,"lon":-76.9378,"type":"Student Section"},{"name":"Boston University","city":"Boston","state":"MA","lat":42.3505,"lon":-71.1054,"type":"Student Section"},{"name":"Massachusetts Institute of Technology","city":"Cambridge","state":"MA","lat":42.3601,"lon":-71.0942,"type":"Student Section"},{"name":"Northeastern University","city":"Boston","state":"MA","lat":42.3398,"lon":-71.0892,"type":"Student Section"},{"name":"University of Massachusetts-Amherst","city":"Amherst","state":"MA","lat":42.3868,"lon":-72.5301,"type":"Student Section"},{"name":"University of Massachusetts-Dartmouth","city":"Dartmouth","state":"MA","lat":41.6287,"lon":-71.0059,"type":"Student Section"},{"name":"University of Massachusetts-Lowell","city":"Lowell","state":"MA","lat":42.6334,"lon":-71.3162,"type":"Student Section"},{"name":"Wentworth Institute of Technology","city":"Boston","state":"MA","lat":42.3369,"lon":-71.0958,"type":"Student Section"},{"name":"Worcester Polytechnic Institute","city":"Worcester","state":"MA","lat":42.2743,"lon":-71.8081,"type":"Student Section"},{"name":"Kettering University","city":"Flint","state":"MI","lat":43.0125,"lon":-83.6875,"type":"Student Section"},{"name":"Michigan State University","city":"East Lansing","state":"MI","lat":42.7369,"lon":-84.4839,"type":"Student Section"},{"name":"Michigan Technological University","city":"Houghton","state":"MI","lat":47.1211,"lon":-88.5694,"type":"Student Section"},{"name":"University of Michigan","city":"Ann Arbor","state":"MI","lat":42.2808,"lon":-83.743,"type":"Student Section"},{"name":"University of Michigan-Dearborn","city":"Dearborn","state":"MI","lat":42.3223,"lon":-83.1763,"type":"Student Section"},{"name":"Wayne State University","city":"Detroit","state":"MI","lat":42.3591,"lon":-83.0665,"type":"Student Section"},{"name":"University of Minnesota","city":"Minneapolis","state":"MN","lat":44.9778,"lon":-93.265,"type":"Student Section"},{"name":"Mississippi State University","city":"Starkville","state":"MS","lat":33.4504,"lon":-88.8184,"type":"Student Section"},{"name":"University of Mississippi","city":"Oxford","state":"MS","lat":34.3665,"lon":-89.5192,"type":"Student Section"},{"name":"Missouri University of Science and Technology","city":"Rolla","state":"MO","lat":37.9514,"lon":-91.7713,"type":"Student Section"},{"name":"University of Missouri","city":"Columbia","state":"MO","lat":38.9517,"lon":-92.3341,"type":"Student Section"},{"name":"University of Missouri-Kansas City","city":"Kansas City","state":"MO","lat":39.0336,"lon":-94.5755,"type":"Student Section"},{"name":"Washington University","city":"St. Louis","state":"MO","lat":38.6488,"lon":-90.3108,"type":"Student Section"},{"name":"Montana State University","city":"Bozeman","state":"MT","lat":45.677,"lon":-111.0429,"type":"Student Section"},{"name":"University of Nebraska-Lincoln","city":"Lincoln","state":"NE","lat":40.8136,"lon":-96.7026,"type":"Student Section"},{"name":"University of Nevada-Las Vegas","city":"Las Vegas","state":"NV","lat":36.107,"lon":-115.1438,"type":"Student Section"},{"name":"University of Nevada-Reno","city":"Reno","state":"NV","lat":39.5445,"lon":-119.8168,"type":"Student Section"},{"name":"University of New Hampshire","city":"Durham","state":"NH","lat":43.1339,"lon":-70.9264,"type":"Student Section"},{"name":"New Jersey Institute of Technology","city":"Newark","state":"NJ","lat":40.742,"lon":-74.179,"type":"Student Section"},{"name":"Princeton University","city":"Princeton","state":"NJ","lat":40.3431,"lon":-74.6551,"type":"Student Section"},{"name":"Rutgers University","city":"New Brunswick","state":"NJ","lat":40.4862,"lon":-74.4518,"type":"Student Section"},{"name":"New Mexico State University","city":"Las Cruces","state":"NM","lat":32.282,"lon":-106.7468,"type":"Student Section"},{"name":"University of New Mexico","city":"Albuquerque","state":"NM","lat":35.0844,"lon":-106.6504,"type":"Student Section"},{"name":"City College of New York","city":"New York","state":"NY","lat":40.8198,"lon":-73.9505,"type":"Student Section"},{"name":"Columbia University","city":"New York","state":"NY","lat":40.8075,"lon":-73.9626,"type":"Student Section"},{"name":"Cornell University","city":"Ithaca","state":"NY","lat":42.4534,"lon":-76.4735,"type":"Student Section"},{"name":"Hofstra University","city":"Hempstead","state":"NY","lat":40.713,"lon":-73.6004,"type":"Student Section"},{"name":"Manhattan University","city":"Riverdale","state":"NY","lat":40.889,"lon":-73.9026,"type":"Student Section"},{"name":"New York Institute of Technology","city":"Old Westbury","state":"NY","lat":40.7887,"lon":-73.5996,"type":"Student Section"},{"name":"Rensselaer Polytechnic Institute","city":"Troy","state":"NY","lat":42.7284,"lon":-73.6918,"type":"Student Section"},{"name":"Rochester Institute of Technology","city":"Rochester","state":"NY","lat":43.084,"lon":-77.6746,"type":"Student Section"},{"name":"Stony Brook University","city":"Stony Brook","state":"NY","lat":40.9126,"lon":-73.1234,"type":"Student Section"},{"name":"University at Buffalo","city":"Buffalo","state":"NY","lat":42.8864,"lon":-78.8784,"type":"Student Section"},{"name":"Syracuse University","city":"Syracuse","state":"NY","lat":43.0392,"lon":-76.1351,"type":"Student Section"},{"name":"North Carolina A&T State University","city":"Greensboro","state":"NC","lat":36.0726,"lon":-79.792,"type":"Student Section"},{"name":"North Carolina State University","city":"Raleigh","state":"NC","lat":35.7847,"lon":-78.6821,"type":"Student Section"},{"name":"University of North Carolina at Charlotte","city":"Charlotte","state":"NC","lat":35.3075,"lon":-80.7357,"type":"Student Section"},{"name":"North Dakota State University","city":"Fargo","state":"ND","lat":46.8772,"lon":-96.7898,"type":"Student Section"},{"name":"Case Western Reserve University","city":"Cleveland","state":"OH","lat":41.5043,"lon":-81.6084,"type":"Student Section"},{"name":"Cedarville University","city":"Cedarville","state":"OH","lat":39.7442,"lon":-83.8085,"type":"Student Section"},{"name":"Ohio State University","city":"Columbus","state":"OH","lat":40.0067,"lon":-83.0305,"type":"Student Section"},{"name":"Ohio University","city":"Athens","state":"OH","lat":39.3292,"lon":-82.1013,"type":"Student Section"},{"name":"University of Akron","city":"Akron","state":"OH","lat":41.0755,"lon":-81.5115,"type":"Student Section"},{"name":"University of Cincinnati","city":"Cincinnati","state":"OH","lat":39.1329,"lon":-84.515,"type":"Student Section"},{"name":"University of Dayton","city":"Dayton","state":"OH","lat":39.74,"lon":-84.179,"type":"Student Section"},{"name":"University of Toledo","city":"Toledo","state":"OH","lat":41.657,"lon":-83.6137,"type":"Student Section"},{"name":"Oklahoma State University","city":"Stillwater","state":"OK","lat":36.1156,"lon":-97.0584,"type":"Student Section"},{"name":"University of Oklahoma","city":"Norman","state":"OK","lat":35.2226,"lon":-97.4395,"type":"Student Section"},{"name":"Oregon State University","city":"Corvallis","state":"OR","lat":44.5646,"lon":-123.262,"type":"Student Section"},{"name":"University of Oregon","city":"Eugene","state":"OR","lat":44.0448,"lon":-123.0726,"type":"Student Section"},{"name":"Carnegie Mellon University","city":"Pittsburgh","state":"PA","lat":40.4433,"lon":-79.9436,"type":"Student Section"},{"name":"Drexel University","city":"Philadelphia","state":"PA","lat":39.9566,"lon":-75.1899,"type":"Student Section"},{"name":"Lehigh University","city":"Bethlehem","state":"PA","lat":40.6068,"lon":-75.3783,"type":"Student Section"},{"name":"Pennsylvania State University","city":"State College","state":"PA","lat":40.7982,"lon":-77.8599,"type":"Student Section"},{"name":"Temple University","city":"Philadelphia","state":"PA","lat":39.9812,"lon":-75.1554,"type":"Student Section"},{"name":"University of Pennsylvania","city":"Philadelphia","state":"PA","lat":39.9522,"lon":-75.1932,"type":"Student Section"},{"name":"University of Pittsburgh","city":"Pittsburgh","state":"PA","lat":40.4444,"lon":-79.9608,"type":"Student Section"},{"name":"University of Rhode Island","city":"Kingston","state":"RI","lat":41.4804,"lon":-71.5226,"type":"Student Section"},{"name":"Clemson University","city":"Clemson","state":"SC","lat":34.6834,"lon":-82.8374,"type":"Student Section"},{"name":"The Citadel","city":"Charleston","state":"SC","lat":32.7972,"lon":-79.961,"type":"Student Section"},{"name":"University of South Carolina","city":"Columbia","state":"SC","lat":33.9938,"lon":-81.0299,"type":"Student Section"},{"name":"South Dakota State University","city":"Brookings","state":"SD","lat":44.3114,"lon":-96.7984,"type":"Student Section"},{"name":"Middle Tennessee State University","city":"Murfreesboro","state":"TN","lat":35.8456,"lon":-86.3903,"type":"Student Section"},{"name":"Tennessee State University","city":"Nashville","state":"TN","lat":36.167,"lon":-86.8296,"type":"Student Section"},{"name":"Tennessee Technological University","city":"Cookeville","state":"TN","lat":36.1628,"lon":-85.5016,"type":"Student Section"},{"name":"University of Memphis","city":"Memphis","state":"TN","lat":35.1187,"lon":-89.9375,"type":"Student Section"},{"name":"University of Tennessee","city":"Knoxville","state":"TN","lat":35.9544,"lon":-83.9295,"type":"Student Section"},{"name":"Vanderbilt University","city":"Nashville","state":"TN","lat":36.1447,"lon":-86.8027,"type":"Student Section"},{"name":"Lamar University","city":"Beaumont","state":"TX","lat":30.0422,"lon":-94.0757,"type":"Student Section"},{"name":"Prairie View A&M University","city":"Prairie View","state":"TX","lat":30.0933,"lon":-95.9877,"type":"Student Section"},{"name":"Rice University","city":"Houston","state":"TX","lat":29.7174,"lon":-95.4018,"type":"Student Section"},{"name":"Texas A&M University-College Station","city":"College Station","state":"TX","lat":30.6187,"lon":-96.3365,"type":"Student Section"},{"name":"Texas A&M University-Kingsville","city":"Kingsville","state":"TX","lat":27.5159,"lon":-97.8561,"type":"Student Section"},{"name":"Texas Christian University","city":"Fort Worth","state":"TX","lat":32.7095,"lon":-97.3637,"type":"Student Section"},{"name":"Texas State University","city":"San Marcos","state":"TX","lat":29.8884,"lon":-97.9384,"type":"Student Section"},{"name":"Texas Tech University","city":"Lubbock","state":"TX","lat":33.5843,"lon":-101.8783,"type":"Student Section"},{"name":"University of Houston","city":"Houston","state":"TX","lat":29.7199,"lon":-95.3422,"type":"Student Section"},{"name":"University of Texas at Arlington","city":"Arlington","state":"TX","lat":32.7291,"lon":-97.1152,"type":"Student Section"},{"name":"University of Texas at Austin","city":"Austin","state":"TX","lat":30.2849,"lon":-97.7341,"type":"Student Section"},{"name":"University of Texas at Dallas","city":"Richardson","state":"TX","lat":32.9858,"lon":-96.7501,"type":"Student Section"},{"name":"University of Texas at El Paso","city":"El Paso","state":"TX","lat":31.77,"lon":-106.5048,"type":"Student Section"},{"name":"University of Texas at San Antonio","city":"San Antonio","state":"TX","lat":29.582,"lon":-98.6214,"type":"Student Section"},{"name":"Brigham Young University","city":"Provo","state":"UT","lat":40.2518,"lon":-111.6493,"type":"Student Section"},{"name":"University of Utah","city":"Salt Lake City","state":"UT","lat":40.7649,"lon":-111.8421,"type":"Student Section"},{"name":"Utah State University","city":"Logan","state":"UT","lat":41.7452,"lon":-111.8097,"type":"Student Section"},{"name":"University of Vermont","city":"Burlington","state":"VT","lat":44.4779,"lon":-73.1965,"type":"Student Section"},{"name":"George Mason University","city":"Fairfax","state":"VA","lat":38.8315,"lon":-77.3117,"type":"Student Section"},{"name":"Old Dominion University","city":"Norfolk","state":"VA","lat":36.8865,"lon":-76.3052,"type":"Student Section"},{"name":"University of Virginia","city":"Charlottesville","state":"VA","lat":38.0336,"lon":-78.508,"type":"Student Section"},{"name":"Virginia Commonwealth University","city":"Richmond","state":"VA","lat":37.5489,"lon":-77.4533,"type":"Student Section"},{"name":"Virginia Tech","city":"Blacksburg","state":"VA","lat":37.2284,"lon":-80.4234,"type":"Student Section"},{"name":"Gonzaga University","city":"Spokane","state":"WA","lat":47.6672,"lon":-117.4025,"type":"Student Section"},{"name":"University of Washington","city":"Seattle","state":"WA","lat":47.6553,"lon":-122.3035,"type":"Student Section"},{"name":"Washington State University - Pullman","city":"Pullman","state":"WA","lat":46.7319,"lon":-117.1542,"type":"Student Section"},{"name":"Washington State University-Tri Cities","city":"Richland","state":"WA","lat":46.3307,"lon":-119.267,"type":"Student Section"},{"name":"Washington State University-Vancouver","city":"Vancouver","state":"WA","lat":45.7307,"lon":-122.635,"type":"Student Section"},{"name":"West Virginia University","city":"Morgantown","state":"WV","lat":39.648,"lon":-79.9697,"type":"Student Section"},{"name":"Marquette University","city":"Milwaukee","state":"WI","lat":43.0386,"lon":-87.9288,"type":"Student Section"},{"name":"Milwaukee School of Engineering","city":"Milwaukee","state":"WI","lat":43.0451,"lon":-87.9079,"type":"Student Section"},{"name":"University of Wisconsin-Madison","city":"Madison","state":"WI","lat":43.0766,"lon":-89.4125,"type":"Student Section"},{"name":"University of Wisconsin-Milwaukee","city":"Milwaukee","state":"WI","lat":43.0766,"lon":-87.881,"type":"Student Section"},{"name":"University of Wyoming","city":"Laramie","state":"WY","lat":41.3114,"lon":-105.5911,"type":"Student Section"},{"name":"Catholic University of America","city":"Washington","state":"DC","lat":38.9369,"lon":-76.9987,"type":"Student Section"},{"name":"Howard University","city":"Washington","state":"DC","lat":38.9227,"lon":-77.0194,"type":"Student Section"},{"name":"George Washington University","city":"Washington","state":"DC","lat":38.8997,"lon":-77.0486,"type":"Student Section"}];
+
+const jurisdictionData={"Anthracite-Lehigh Valley Section":[{"fips":"42011","partial":false},{"fips":"42015","partial":false},{"fips":"42025","partial":false},{"fips":"42037","partial":false},{"fips":"42069","partial":false},{"fips":"42077","partial":false},{"fips":"42079","partial":false},{"fips":"42089","partial":false},{"fips":"42093","partial":false},{"fips":"42095","partial":false},{"fips":"42103","partial":false},{"fips":"42107","partial":false},{"fips":"42113","partial":false},{"fips":"42115","partial":false},{"fips":"42127","partial":false},{"fips":"42131","partial":false},{"fips":"34041","partial":false}],"Arizona Section":[{"fips":"04001","partial":false},{"fips":"04003","partial":false},{"fips":"04005","partial":false},{"fips":"04007","partial":false},{"fips":"04009","partial":false},{"fips":"04011","partial":false},{"fips":"04012","partial":false},{"fips":"04013","partial":false},{"fips":"04015","partial":false},{"fips":"04017","partial":false},{"fips":"04019","partial":false},{"fips":"04021","partial":false},{"fips":"04023","partial":false},{"fips":"04025","partial":false},{"fips":"04027","partial":false}],"Arkansas Section":[{"fips":"05001","partial":false},{"fips":"05003","partial":false},{"fips":"05005","partial":false},{"fips":"05007","partial":false},{"fips":"05009","partial":false},{"fips":"05011","partial":false},{"fips":"05013","partial":false},{"fips":"05015","partial":false},{"fips":"05017","partial":false},{"fips":"05019","partial":false},{"fips":"05021","partial":false},{"fips":"05023","partial":false},{"fips":"05025","partial":false},{"fips":"05027","partial":false},{"fips":"05029","partial":false},{"fips":"05031","partial":false},{"fips":"05033","partial":false},{"fips":"05035","partial":false},{"fips":"05037","partial":false},{"fips":"05039","partial":false},{"fips":"05041","partial":false},{"fips":"05043","partial":false},{"fips":"05045","partial":false},{"fips":"05047","partial":false},{"fips":"05049","partial":false},{"fips":"05051","partial":false},{"fips":"05053","partial":false},{"fips":"05055","partial":false},{"fips":"05057","partial":false},{"fips":"05059","partial":false},{"fips":"05061","partial":false},{"fips":"05063","partial":false},{"fips":"05065","partial":false},{"fips":"05067","partial":false},{"fips":"05069","partial":false},{"fips":"05071","partial":false},{"fips":"05073","partial":false},{"fips":"05075","partial":false},{"fips":"05077","partial":false},{"fips":"05079","partial":false},{"fips":"05081","partial":false},{"fips":"05083","partial":false},{"fips":"05085","partial":false},{"fips":"05087","partial":false},{"fips":"05089","partial":false},{"fips":"05091","partial":false},{"fips":"05093","partial":false},{"fips":"05095","partial":false},{"fips":"05097","partial":false},{"fips":"05099","partial":false},{"fips":"05101","partial":false},{"fips":"05103","partial":false},{"fips":"05105","partial":false},{"fips":"05107","partial":false},{"fips":"05109","partial":false},{"fips":"05111","partial":false},{"fips":"05113","partial":false},{"fips":"05115","partial":false},{"fips":"05117","partial":false},{"fips":"05119","partial":false},{"fips":"05121","partial":false},{"fips":"05123","partial":false},{"fips":"05125","partial":false},{"fips":"05127","partial":false},{"fips":"05129","partial":false},{"fips":"05131","partial":false},{"fips":"05133","partial":false},{"fips":"05135","partial":false},{"fips":"05137","partial":false},{"fips":"05139","partial":false},{"fips":"05141","partial":false},{"fips":"05143","partial":false},{"fips":"05145","partial":false},{"fips":"05147","partial":false},{"fips":"05149","partial":false}],"Atlanta Section":[{"fips":"13009","partial":false},{"fips":"13011","partial":false},{"fips":"13013","partial":false},{"fips":"13015","partial":false},{"fips":"13021","partial":false},{"fips":"13023","partial":false},{"fips":"13035","partial":false},{"fips":"13045","partial":false},{"fips":"13057","partial":false},{"fips":"13059","partial":false},{"fips":"13063","partial":false},{"fips":"13067","partial":false},{"fips":"13077","partial":false},{"fips":"13079","partial":false},{"fips":"13081","partial":false},{"fips":"13085","partial":false},{"fips":"13089","partial":false},{"fips":"13091","partial":false},{"fips":"13093","partial":false},{"fips":"13097","partial":false},{"fips":"13105","partial":false},{"fips":"13111","partial":false},{"fips":"13113","partial":false},{"fips":"13115","partial":false},{"fips":"13117","partial":false},{"fips":"13119","partial":false},{"fips":"13121","partial":false},{"fips":"13123","partial":false},{"fips":"13129","partial":false},{"fips":"13133","partial":false},{"fips":"13135","partial":false},{"fips":"13137","partial":false},{"fips":"13139","partial":false},{"fips":"13143","partial":false},{"fips":"13147","partial":false},{"fips":"13149","partial":false},{"fips":"13151","partial":false},{"fips":"13153","partial":false},{"fips":"13157","partial":false},{"fips":"13159","partial":false},{"fips":"13169","partial":false},{"fips":"13171","partial":false},{"fips":"13175","partial":false},{"fips":"13187","partial":false},{"fips":"13193","partial":false},{"fips":"13195","partial":false},{"fips":"13207","partial":false},{"fips":"13211","partial":false},{"fips":"13217","partial":false},{"fips":"13219","partial":false},{"fips":"13221","partial":false},{"fips":"13223","partial":false},{"fips":"13225","partial":false},{"fips":"13227","partial":false},{"fips":"13231","partial":false},{"fips":"13233","partial":false},{"fips":"13235","partial":false},{"fips":"13237","partial":false},{"fips":"13241","partial":false},{"fips":"13247","partial":false},{"fips":"13255","partial":false},{"fips":"13257","partial":false},{"fips":"13269","partial":false},{"fips":"13281","partial":false},{"fips":"13289","partial":false},{"fips":"13291","partial":false},{"fips":"13293","partial":false},{"fips":"13297","partial":false},{"fips":"13311","partial":false},{"fips":"13315","partial":false},{"fips":"13319","partial":false}],"Baltimore Section":[{"fips":"24001","partial":false},{"fips":"24003","partial":false},{"fips":"24005","partial":false},{"fips":"24013","partial":false},{"fips":"24021","partial":false},{"fips":"24023","partial":false},{"fips":"24025","partial":false},{"fips":"24027","partial":false},{"fips":"24043","partial":false},{"fips":"54003","partial":false},{"fips":"54037","partial":false},{"fips":"54057","partial":false},{"fips":"54065","partial":false}],"Baton Rouge Section":[{"fips":"22001","partial":false},{"fips":"22005","partial":false},{"fips":"22009","partial":false},{"fips":"22033","partial":false},{"fips":"22037","partial":false},{"fips":"22039","partial":false},{"fips":"22045","partial":false},{"fips":"22047","partial":false},{"fips":"22055","partial":false},{"fips":"22063","partial":false},{"fips":"22077","partial":false},{"fips":"22091","partial":false},{"fips":"22095","partial":false},{"fips":"22097","partial":false},{"fips":"22099","partial":false},{"fips":"22113","partial":false},{"fips":"22121","partial":false},{"fips":"22125","partial":false}],"Birmingham Section":[{"fips":"01007","partial":false},{"fips":"01009","partial":false},{"fips":"01015","partial":false},{"fips":"01019","partial":false},{"fips":"01021","partial":false},{"fips":"01023","partial":false},{"fips":"01027","partial":false},{"fips":"01029","partial":false},{"fips":"01037","partial":false},{"fips":"01043","partial":false},{"fips":"01055","partial":false},{"fips":"01057","partial":false},{"fips":"01063","partial":false},{"fips":"01065","partial":false},{"fips":"01073","partial":false},{"fips":"01075","partial":false},{"fips":"01091","partial":false},{"fips":"01093","partial":false},{"fips":"01105","partial":false},{"fips":"01107","partial":false},{"fips":"01111","partial":false},{"fips":"01117","partial":false},{"fips":"01115","partial":false},{"fips":"01119","partial":false},{"fips":"01121","partial":false},{"fips":"01125","partial":false},{"fips":"01127","partial":false},{"fips":"01131","partial":false},{"fips":"01133","partial":false}],"Bluegrass Section":[{"fips":"21005","partial":false},{"fips":"21011","partial":false},{"fips":"21013","partial":false},{"fips":"21017","partial":false},{"fips":"21019","partial":false},{"fips":"21021","partial":false},{"fips":"21025","partial":false},{"fips":"21043","partial":false},{"fips":"21045","partial":false},{"fips":"21049","partial":false},{"fips":"21051","partial":false},{"fips":"21063","partial":false},{"fips":"21065","partial":false},{"fips":"21067","partial":false},{"fips":"21069","partial":false},{"fips":"21071","partial":false},{"fips":"21073","partial":false},{"fips":"21079","partial":false},{"fips":"21089","partial":false},{"fips":"21095","partial":false},{"fips":"21097","partial":false},{"fips":"21109","partial":false},{"fips":"21113","partial":false},{"fips":"21115","partial":false},{"fips":"21119","partial":false},{"fips":"21121","partial":false},{"fips":"21125","partial":false},{"fips":"21127","partial":false},{"fips":"21129","partial":false},{"fips":"21131","partial":false},{"fips":"21133","partial":false},{"fips":"21135","partial":false},{"fips":"21137","partial":false},{"fips":"21151","partial":false},{"fips":"21153","partial":false},{"fips":"21159","partial":false},{"fips":"21161","partial":false},{"fips":"21147","partial":false},{"fips":"21165","partial":false},{"fips":"21167","partial":false},{"fips":"21173","partial":false},{"fips":"21175","partial":false},{"fips":"21181","partial":false},{"fips":"21187","partial":false},{"fips":"21189","partial":false},{"fips":"21193","partial":false},{"fips":"21195","partial":false},{"fips":"21197","partial":false},{"fips":"21199","partial":false},{"fips":"21201","partial":false},{"fips":"21203","partial":false},{"fips":"21205","partial":false},{"fips":"21209","partial":false},{"fips":"21231","partial":false},{"fips":"21235","partial":false},{"fips":"21237","partial":false},{"fips":"21239","partial":false}],"Boston Section":[{"fips":"25001","partial":false},{"fips":"25005","partial":false},{"fips":"25007","partial":false},{"fips":"25009","partial":false},{"fips":"25017","partial":false},{"fips":"25019","partial":false},{"fips":"25021","partial":false},{"fips":"25023","partial":false},{"fips":"25025","partial":false},{"fips":"44001","partial":false},{"fips":"44003","partial":false},{"fips":"44005","partial":false},{"fips":"44007","partial":false},{"fips":"44009","partial":false}],"Buffalo Section":[{"fips":"36013","partial":false},{"fips":"36029","partial":false},{"fips":"36063","partial":false}],"California Inland Section":[{"fips":"06071","partial":false},{"fips":"06065","partial":false},{"fips":"06037","partial":true}],"Canaveral Section":[{"fips":"12009","partial":false},{"fips":"12061","partial":false}],"Carolina Section":[{"fips":"37005","partial":false},{"fips":"37009","partial":false},{"fips":"37057","partial":false},{"fips":"37059","partial":false},{"fips":"37067","partial":false},{"fips":"37081","partial":false},{"fips":"37151","partial":false},{"fips":"37157","partial":false},{"fips":"37169","partial":false},{"fips":"37171","partial":false},{"fips":"37189","partial":false},{"fips":"37193","partial":false},{"fips":"37197","partial":false}],"Central Indiana Section":[{"fips":"17023","partial":false},{"fips":"17029","partial":false},{"fips":"17033","partial":false},{"fips":"17035","partial":false},{"fips":"17049","partial":false},{"fips":"17079","partial":false},{"fips":"18005","partial":false},{"fips":"18011","partial":false},{"fips":"18013","partial":false},{"fips":"18015","partial":false},{"fips":"18017","partial":false},{"fips":"18021","partial":false},{"fips":"18023","partial":false},{"fips":"18031","partial":false},{"fips":"18035","partial":false},{"fips":"18045","partial":false},{"fips":"18053","partial":false},{"fips":"18055","partial":false},{"fips":"18057","partial":false},{"fips":"18059","partial":false},{"fips":"18063","partial":false},{"fips":"18065","partial":false},{"fips":"18067","partial":false},{"fips":"18071","partial":false},{"fips":"18079","partial":false},{"fips":"18081","partial":false},{"fips":"18093","partial":false},{"fips":"18095","partial":false},{"fips":"18097","partial":false},{"fips":"18105","partial":false},{"fips":"18107","partial":false},{"fips":"18109","partial":false},{"fips":"18119","partial":false},{"fips":"18121","partial":false},{"fips":"18133","partial":false},{"fips":"18139","partial":false},{"fips":"18145","partial":false},{"fips":"18153","partial":false},{"fips":"18157","partial":false},{"fips":"18159","partial":false},{"fips":"18165","partial":false},{"fips":"18167","partial":false},{"fips":"18171","partial":false}],"Central Iowa Section":[{"fips":"19001","partial":false},{"fips":"19003","partial":false},{"fips":"19007","partial":false},{"fips":"19013","partial":false},{"fips":"19015","partial":false},{"fips":"19017","partial":false},{"fips":"19021","partial":false},{"fips":"19023","partial":false},{"fips":"19025","partial":false},{"fips":"19027","partial":false},{"fips":"19033","partial":false},{"fips":"19037","partial":false},{"fips":"19039","partial":false},{"fips":"19041","partial":false},{"fips":"19049","partial":false},{"fips":"19051","partial":false},{"fips":"19053","partial":false},{"fips":"19059","partial":false},{"fips":"19063","partial":false},{"fips":"19067","partial":false},{"fips":"19069","partial":false},{"fips":"19073","partial":false},{"fips":"19075","partial":false},{"fips":"19077","partial":false},{"fips":"19079","partial":false},{"fips":"19081","partial":false},{"fips":"19083","partial":false},{"fips":"19089","partial":false},{"fips":"19091","partial":false},{"fips":"19099","partial":false},{"fips":"19101","partial":false},{"fips":"19107","partial":false},{"fips":"19109","partial":false},{"fips":"19117","partial":false},{"fips":"19121","partial":false},{"fips":"19123","partial":false},{"fips":"19125","partial":false},{"fips":"19127","partial":false},{"fips":"19131","partial":false},{"fips":"19135","partial":false},{"fips":"19147","partial":false},{"fips":"19151","partial":false},{"fips":"19153","partial":false},{"fips":"19157","partial":false},{"fips":"19159","partial":false},{"fips":"19161","partial":false},{"fips":"19169","partial":false},{"fips":"19171","partial":false},{"fips":"19173","partial":false},{"fips":"19175","partial":false},{"fips":"19177","partial":false},{"fips":"19179","partial":false},{"fips":"19181","partial":false},{"fips":"19185","partial":false},{"fips":"19187","partial":false},{"fips":"19189","partial":false},{"fips":"19195","partial":false},{"fips":"19197","partial":false}],"Central Kansas Section":[{"fips":"20007","partial":false},{"fips":"20009","partial":false},{"fips":"20015","partial":false},{"fips":"20017","partial":false},{"fips":"20019","partial":false},{"fips":"20023","partial":false},{"fips":"20025","partial":false},{"fips":"20029","partial":false},{"fips":"20033","partial":false},{"fips":"20035","partial":false},{"fips":"20039","partial":false},{"fips":"20041","partial":false},{"fips":"20047","partial":false},{"fips":"20049","partial":false},{"fips":"20051","partial":false},{"fips":"20053","partial":false},{"fips":"20055","partial":false},{"fips":"20057","partial":false},{"fips":"20063","partial":false},{"fips":"20065","partial":false},{"fips":"20067","partial":false},{"fips":"20069","partial":false},{"fips":"20071","partial":false},{"fips":"20073","partial":false},{"fips":"20075","partial":false},{"fips":"20077","partial":false},{"fips":"20079","partial":false},{"fips":"20081","partial":false},{"fips":"20083","partial":false},{"fips":"20089","partial":false},{"fips":"20093","partial":false},{"fips":"20095","partial":false},{"fips":"20097","partial":false},{"fips":"20101","partial":false},{"fips":"20105","partial":false},{"fips":"20109","partial":false},{"fips":"20111","partial":false},{"fips":"20115","partial":false},{"fips":"20113","partial":false},{"fips":"20119","partial":false},{"fips":"20123","partial":false},{"fips":"20127","partial":false},{"fips":"20129","partial":false},{"fips":"20135","partial":false},{"fips":"20137","partial":false},{"fips":"20141","partial":false},{"fips":"20143","partial":false},{"fips":"20145","partial":false},{"fips":"20147","partial":false},{"fips":"20151","partial":false},{"fips":"20153","partial":false},{"fips":"20155","partial":false},{"fips":"20157","partial":false},{"fips":"20159","partial":false},{"fips":"20163","partial":false},{"fips":"20165","partial":false},{"fips":"20167","partial":false},{"fips":"20169","partial":false},{"fips":"20171","partial":false},{"fips":"20173","partial":false},{"fips":"20175","partial":false},{"fips":"20179","partial":false},{"fips":"20181","partial":false},{"fips":"20183","partial":false},{"fips":"20185","partial":false},{"fips":"20187","partial":false},{"fips":"20189","partial":false},{"fips":"20191","partial":false},{"fips":"20193","partial":false},{"fips":"20195","partial":false},{"fips":"20199","partial":false}],"Central Oklahoma Section":[{"fips":"40003","partial":false},{"fips":"40007","partial":false},{"fips":"40009","partial":false},{"fips":"40011","partial":false},{"fips":"40015","partial":false},{"fips":"40017","partial":false},{"fips":"40019","partial":false},{"fips":"40027","partial":false},{"fips":"40031","partial":false},{"fips":"40033","partial":false},{"fips":"40039","partial":false},{"fips":"40043","partial":false},{"fips":"40045","partial":false},{"fips":"40047","partial":false},{"fips":"40049","partial":false},{"fips":"40051","partial":false},{"fips":"40053","partial":false},{"fips":"40055","partial":false},{"fips":"40057","partial":false},{"fips":"40059","partial":false},{"fips":"40065","partial":false},{"fips":"40067","partial":false},{"fips":"40069","partial":false},{"fips":"40071","partial":false},{"fips":"40073","partial":false},{"fips":"40075","partial":false},{"fips":"40081","partial":false},{"fips":"40083","partial":false},{"fips":"40085","partial":false},{"fips":"40093","partial":false},{"fips":"40095","partial":false},{"fips":"40087","partial":false},{"fips":"40099","partial":false},{"fips":"40103","partial":false},{"fips":"40109","partial":false},{"fips":"40119","partial":false},{"fips":"40123","partial":false},{"fips":"40125","partial":false},{"fips":"40129","partial":false},{"fips":"40133","partial":false},{"fips":"40137","partial":false},{"fips":"40141","partial":false},{"fips":"40149","partial":false},{"fips":"40151","partial":false},{"fips":"40153","partial":false}],"Central Pennsylvania Section":[{"fips":"42009","partial":false},{"fips":"42013","partial":false},{"fips":"42021","partial":false},{"fips":"42023","partial":false},{"fips":"42027","partial":false},{"fips":"42033","partial":false},{"fips":"42035","partial":false},{"fips":"42047","partial":false},{"fips":"42057","partial":false},{"fips":"42061","partial":false},{"fips":"42081","partial":false},{"fips":"42087","partial":false},{"fips":"42097","partial":false},{"fips":"42105","partial":false},{"fips":"42109","partial":false},{"fips":"42117","partial":false},{"fips":"42119","partial":false}],"Central Savannah River Area Section":[{"fips":"13033","partial":false},{"fips":"13073","partial":false},{"fips":"13107","partial":false},{"fips":"13125","partial":false},{"fips":"13141","partial":false},{"fips":"13163","partial":false},{"fips":"13165","partial":false},{"fips":"13167","partial":false},{"fips":"13181","partial":false},{"fips":"13189","partial":false},{"fips":"13245","partial":false},{"fips":"13265","partial":false},{"fips":"13301","partial":false},{"fips":"13303","partial":false},{"fips":"13317","partial":false},{"fips":"45003","partial":false},{"fips":"45005","partial":false},{"fips":"45009","partial":false},{"fips":"45011","partial":false},{"fips":"45037","partial":false},{"fips":"45065","partial":false}],"Central Texas Section":[{"fips":"48021","partial":false},{"fips":"48027","partial":false},{"fips":"48031","partial":false},{"fips":"48051","partial":false},{"fips":"48053","partial":false},{"fips":"48055","partial":false},{"fips":"48171","partial":false},{"fips":"48209","partial":false},{"fips":"48287","partial":false},{"fips":"48299","partial":false},{"fips":"48331","partial":false},{"fips":"48453","partial":false},{"fips":"48491","partial":false}],"Central Virginia Section":[{"fips":"51003","partial":false},{"fips":"51007","partial":false},{"fips":"51025","partial":false},{"fips":"51033","partial":false},{"fips":"51036","partial":false},{"fips":"51540","partial":false},{"fips":"51550","partial":false},{"fips":"51041","partial":false},{"fips":"51570","partial":false},{"fips":"51053","partial":false},{"fips":"51057","partial":false},{"fips":"51065","partial":false},{"fips":"51073","partial":false},{"fips":"51075","partial":false},{"fips":"51081","partial":false},{"fips":"51650","partial":false},{"fips":"51085","partial":false},{"fips":"51087","partial":false},{"fips":"51670","partial":false},{"fips":"51093","partial":false},{"fips":"51095","partial":false},{"fips":"51097","partial":false},{"fips":"51101","partial":false},{"fips":"51103","partial":false},{"fips":"51109","partial":false},{"fips":"51111","partial":false},{"fips":"51115","partial":false},{"fips":"51117","partial":false},{"fips":"51119","partial":false},{"fips":"51125","partial":false},{"fips":"51127","partial":false},{"fips":"51700","partial":false},{"fips":"51710","partial":false},{"fips":"51133","partial":false},{"fips":"51135","partial":false},{"fips":"51730","partial":false},{"fips":"51735","partial":false},{"fips":"51740","partial":false},{"fips":"51145","partial":false},{"fips":"51149","partial":false},{"fips":"51760","partial":false},{"fips":"51175","partial":false},{"fips":"51800","partial":false},{"fips":"51181","partial":false},{"fips":"51183","partial":false},{"fips":"51810","partial":false},{"fips":"51193","partial":false},{"fips":"51830","partial":false},{"fips":"51199","partial":false}],"Channel Islands Section":[{"fips":"06111","partial":false},{"fips":"06083","partial":true}],"Charleston Section":[{"fips":"45015","partial":false},{"fips":"45019","partial":false},{"fips":"45029","partial":false},{"fips":"45035","partial":false}],"Chattanooga Section":[{"fips":"01049","partial":false},{"fips":"01071","partial":false},{"fips":"13047","partial":false},{"fips":"13055","partial":false},{"fips":"13083","partial":false},{"fips":"13213","partial":false},{"fips":"13295","partial":false},{"fips":"13313","partial":false},{"fips":"47007","partial":false},{"fips":"47011","partial":false},{"fips":"47065","partial":false},{"fips":"47115","partial":false},{"fips":"47107","partial":false},{"fips":"47121","partial":false},{"fips":"47139","partial":false},{"fips":"47143","partial":false},{"fips":"47153","partial":false},{"fips":"47175","partial":false}],"Chicago Section":[{"fips":"17031","partial":true},{"fips":"17089","partial":true},{"fips":"17091","partial":false},{"fips":"17097","partial":false},{"fips":"17111","partial":false},{"fips":"17197","partial":true},{"fips":"18089","partial":false}],"Cincinnati Section":[{"fips":"18029","partial":false},{"fips":"18041","partial":false},{"fips":"18047","partial":false},{"fips":"18115","partial":false},{"fips":"18137","partial":false},{"fips":"18155","partial":false},{"fips":"21015","partial":false},{"fips":"21023","partial":false},{"fips":"21037","partial":false},{"fips":"21077","partial":false},{"fips":"21081","partial":false},{"fips":"21117","partial":false},{"fips":"21191","partial":false},{"fips":"39001","partial":false},{"fips":"39009","partial":false},{"fips":"39015","partial":false},{"fips":"39017","partial":false},{"fips":"39025","partial":false},{"fips":"39053","partial":false},{"fips":"39061","partial":false},{"fips":"39071","partial":false},{"fips":"39079","partial":false},{"fips":"39105","partial":false},{"fips":"39131","partial":false},{"fips":"39145","partial":false},{"fips":"39163","partial":false},{"fips":"39165","partial":false}],"Coastal Carolina Section":[{"fips":"37017","partial":false},{"fips":"37019","partial":false},{"fips":"37031","partial":false},{"fips":"37047","partial":false},{"fips":"37049","partial":false},{"fips":"37103","partial":false},{"fips":"37129","partial":false},{"fips":"37133","partial":false},{"fips":"37137","partial":false},{"fips":"37141","partial":false}],"Colorado Section":[{"fips":"08001","partial":false},{"fips":"08003","partial":false},{"fips":"08005","partial":false},{"fips":"08007","partial":false},{"fips":"08009","partial":false},{"fips":"08011","partial":false},{"fips":"08013","partial":false},{"fips":"08014","partial":false},{"fips":"08015","partial":false},{"fips":"08017","partial":false},{"fips":"08019","partial":false},{"fips":"08021","partial":false},{"fips":"08023","partial":false},{"fips":"08025","partial":false},{"fips":"08027","partial":false},{"fips":"08029","partial":false},{"fips":"08031","partial":false},{"fips":"08033","partial":false},{"fips":"08035","partial":false},{"fips":"08037","partial":false},{"fips":"08039","partial":false},{"fips":"08041","partial":false},{"fips":"08043","partial":false},{"fips":"08045","partial":false},{"fips":"08047","partial":false},{"fips":"08049","partial":false},{"fips":"08051","partial":false},{"fips":"08053","partial":false},{"fips":"08055","partial":false},{"fips":"08057","partial":false},{"fips":"08059","partial":false},{"fips":"08061","partial":false},{"fips":"08063","partial":false},{"fips":"08065","partial":false},{"fips":"08067","partial":false},{"fips":"08069","partial":false},{"fips":"08071","partial":false},{"fips":"08073","partial":false},{"fips":"08075","partial":false},{"fips":"08077","partial":false},{"fips":"08079","partial":false},{"fips":"08081","partial":false},{"fips":"08083","partial":false},{"fips":"08085","partial":false},{"fips":"08087","partial":false},{"fips":"08089","partial":false},{"fips":"08091","partial":false},{"fips":"08093","partial":false},{"fips":"08095","partial":false},{"fips":"08097","partial":false},{"fips":"08099","partial":false},{"fips":"08101","partial":false},{"fips":"08103","partial":false},{"fips":"08105","partial":false},{"fips":"08107","partial":false},{"fips":"08109","partial":false},{"fips":"08111","partial":false},{"fips":"08113","partial":false},{"fips":"08115","partial":false},{"fips":"08117","partial":false},{"fips":"08119","partial":false},{"fips":"08121","partial":false},{"fips":"08123","partial":false},{"fips":"08125","partial":false}],"Columbia Basin Section":[{"fips":"53005","partial":false},{"fips":"53021","partial":false},{"fips":"53037","partial":false},{"fips":"53039","partial":false},{"fips":"53071","partial":false},{"fips":"53077","partial":false}],"Columbus Ohio Section":[{"fips":"39041","partial":false},{"fips":"39045","partial":false},{"fips":"39047","partial":false},{"fips":"39049","partial":false},{"fips":"39059","partial":false},{"fips":"39073","partial":false},{"fips":"39083","partial":false},{"fips":"39089","partial":false},{"fips":"39097","partial":false},{"fips":"39101","partial":false},{"fips":"39115","partial":false},{"fips":"39117","partial":false},{"fips":"39119","partial":false},{"fips":"39127","partial":false},{"fips":"39129","partial":false},{"fips":"39141","partial":false},{"fips":"39159","partial":false},{"fips":"39167","partial":false}],"Dayton Section":[{"fips":"18041","partial":false},{"fips":"18135","partial":false},{"fips":"18161","partial":false},{"fips":"18177","partial":false},{"fips":"39017","partial":false},{"fips":"39021","partial":false},{"fips":"39023","partial":false},{"fips":"39027","partial":false},{"fips":"39037","partial":false},{"fips":"39057","partial":false},{"fips":"39091","partial":false},{"fips":"39109","partial":false},{"fips":"39113","partial":false},{"fips":"39135","partial":false},{"fips":"39149","partial":false},{"fips":"39165","partial":false}],"East Tennessee Section":[{"fips":"47001","partial":false},{"fips":"47009","partial":false},{"fips":"47013","partial":false},{"fips":"47025","partial":false},{"fips":"47027","partial":false},{"fips":"47029","partial":false},{"fips":"47035","partial":false},{"fips":"47049","partial":false},{"fips":"47057","partial":false},{"fips":"47063","partial":false},{"fips":"47087","partial":false},{"fips":"47089","partial":false},{"fips":"47093","partial":false},{"fips":"47105","partial":false},{"fips":"47123","partial":false},{"fips":"47129","partial":false},{"fips":"47133","partial":false},{"fips":"47137","partial":false},{"fips":"47145","partial":false},{"fips":"47151","partial":false},{"fips":"47155","partial":false},{"fips":"47173","partial":false},{"fips":"47185","partial":false}],"Erie Section":[{"fips":"36013","partial":false},{"fips":"42039","partial":false},{"fips":"42049","partial":false},{"fips":"42121","partial":false},{"fips":"42123","partial":false}],"Florida Section":[{"fips":"12017","partial":false},{"fips":"12053","partial":false},{"fips":"12069","partial":false},{"fips":"12093","partial":false},{"fips":"12095","partial":false},{"fips":"12097","partial":false},{"fips":"12117","partial":false},{"fips":"12119","partial":false},{"fips":"12127","partial":false}],"Florida West Coast Section":[{"fips":"12027","partial":false},{"fips":"12049","partial":false},{"fips":"12055","partial":false},{"fips":"12057","partial":false},{"fips":"12081","partial":false},{"fips":"12101","partial":false},{"fips":"12103","partial":false},{"fips":"12105","partial":false},{"fips":"12115","partial":false}],"Fort Wayne Section":[{"fips":"18001","partial":false},{"fips":"18003","partial":false},{"fips":"18009","partial":false},{"fips":"18033","partial":false},{"fips":"18069","partial":false},{"fips":"18075","partial":false},{"fips":"18087","partial":false},{"fips":"18103","partial":false},{"fips":"18113","partial":false},{"fips":"18151","partial":false},{"fips":"18169","partial":false},{"fips":"18179","partial":false},{"fips":"18183","partial":false},{"fips":"39039","partial":false},{"fips":"39125","partial":false},{"fips":"39171","partial":false}],"Fox Valley Section":[{"fips":"17007","partial":false},{"fips":"17037","partial":false},{"fips":"17043","partial":false},{"fips":"17063","partial":false},{"fips":"17093","partial":false},{"fips":"17103","partial":false},{"fips":"17141","partial":false},{"fips":"17177","partial":false},{"fips":"17201","partial":false},{"fips":"17089","partial":true},{"fips":"17031","partial":true},{"fips":"17197","partial":true}],"Greater Trenton Section":[{"fips":"34005","partial":false},{"fips":"34021","partial":false},{"fips":"42017","partial":false}],"Greenville Section":[{"fips":"37011","partial":false},{"fips":"37021","partial":false},{"fips":"37039","partial":false},{"fips":"37043","partial":false},{"fips":"37075","partial":false},{"fips":"37087","partial":false},{"fips":"37089","partial":false},{"fips":"37099","partial":false},{"fips":"37113","partial":false},{"fips":"37115","partial":false},{"fips":"37111","partial":false},{"fips":"37121","partial":false},{"fips":"37149","partial":false},{"fips":"37173","partial":false},{"fips":"37175","partial":false},{"fips":"37199","partial":false},{"fips":"45001","partial":false},{"fips":"45007","partial":false},{"fips":"45021","partial":false},{"fips":"45045","partial":false},{"fips":"45047","partial":false},{"fips":"45059","partial":false},{"fips":"45071","partial":false},{"fips":"45073","partial":false},{"fips":"45077","partial":false},{"fips":"45081","partial":false},{"fips":"45083","partial":false},{"fips":"45087","partial":false}],"Hartford Section":[{"fips":"09001","partial":false},{"fips":"09003","partial":false},{"fips":"09005","partial":false},{"fips":"09007","partial":false},{"fips":"09009","partial":false},{"fips":"09011","partial":false},{"fips":"09013","partial":false},{"fips":"09015","partial":false},{"fips":"25003","partial":false},{"fips":"25011","partial":false},{"fips":"25013","partial":false},{"fips":"25015","partial":false},{"fips":"44009","partial":false}],"Holston Section":[{"fips":"47019","partial":false},{"fips":"47059","partial":false},{"fips":"47067","partial":false},{"fips":"47073","partial":false},{"fips":"47091","partial":false},{"fips":"47163","partial":false},{"fips":"47171","partial":false},{"fips":"47179","partial":false},{"fips":"51520","partial":false},{"fips":"51027","partial":false},{"fips":"51051","partial":false},{"fips":"51105","partial":false},{"fips":"51167","partial":false},{"fips":"51169","partial":false},{"fips":"51173","partial":false},{"fips":"51185","partial":false},{"fips":"51191","partial":false},{"fips":"51195","partial":false}],"Hudson Mohawk Section":[{"fips":"36001","partial":false},{"fips":"36019","partial":false},{"fips":"36025","partial":false},{"fips":"36031","partial":false},{"fips":"36035","partial":false},{"fips":"36057","partial":false},{"fips":"36083","partial":false},{"fips":"36091","partial":false},{"fips":"36093","partial":false},{"fips":"36095","partial":false},{"fips":"36115","partial":false}],"Idaho Section":[{"fips":"16005","partial":false},{"fips":"16007","partial":false},{"fips":"16011","partial":false},{"fips":"16013","partial":false},{"fips":"16019","partial":false},{"fips":"16023","partial":false},{"fips":"16029","partial":false},{"fips":"16033","partial":false},{"fips":"16037","partial":false},{"fips":"16041","partial":false},{"fips":"16043","partial":false},{"fips":"16051","partial":false},{"fips":"16059","partial":false},{"fips":"16065","partial":false},{"fips":"16071","partial":false},{"fips":"16077","partial":false},{"fips":"16081","partial":false}],"Inland Empire Section":[{"fips":"16009","partial":false},{"fips":"16017","partial":false},{"fips":"16021","partial":false},{"fips":"16035","partial":false},{"fips":"16049","partial":false},{"fips":"16055","partial":false},{"fips":"16057","partial":false},{"fips":"16061","partial":false},{"fips":"16069","partial":false},{"fips":"16079","partial":false},{"fips":"53001","partial":false},{"fips":"53003","partial":false},{"fips":"53007","partial":false},{"fips":"53013","partial":false},{"fips":"53017","partial":false},{"fips":"53019","partial":false},{"fips":"53023","partial":false},{"fips":"53025","partial":false},{"fips":"53043","partial":false},{"fips":"53047","partial":false},{"fips":"53051","partial":false},{"fips":"53063","partial":false},{"fips":"53065","partial":false},{"fips":"53075","partial":false}],"Kansas City Section":[{"fips":"20001","partial":false},{"fips":"20003","partial":false},{"fips":"20005","partial":false},{"fips":"20011","partial":false},{"fips":"20013","partial":false},{"fips":"20021","partial":false},{"fips":"20027","partial":false},{"fips":"20031","partial":false},{"fips":"20037","partial":false},{"fips":"20043","partial":false},{"fips":"20045","partial":false},{"fips":"20059","partial":false},{"fips":"20061","partial":false},{"fips":"20085","partial":false},{"fips":"20087","partial":false},{"fips":"20091","partial":false},{"fips":"20099","partial":false},{"fips":"20103","partial":false},{"fips":"20107","partial":false},{"fips":"20117","partial":false},{"fips":"20121","partial":false},{"fips":"20125","partial":false},{"fips":"20131","partial":false},{"fips":"20133","partial":false},{"fips":"20139","partial":false},{"fips":"20149","partial":false},{"fips":"20161","partial":false},{"fips":"20177","partial":false},{"fips":"20197","partial":false},{"fips":"20201","partial":false},{"fips":"20205","partial":false},{"fips":"20207","partial":false},{"fips":"20209","partial":false},{"fips":"29001","partial":false},{"fips":"29003","partial":false},{"fips":"29005","partial":false},{"fips":"29009","partial":false},{"fips":"29011","partial":false},{"fips":"29013","partial":false},{"fips":"29015","partial":false},{"fips":"29019","partial":false},{"fips":"29021","partial":false},{"fips":"29025","partial":false},{"fips":"29029","partial":false},{"fips":"29033","partial":false},{"fips":"29037","partial":false},{"fips":"29039","partial":false},{"fips":"29041","partial":false},{"fips":"29043","partial":false},{"fips":"29045","partial":false},{"fips":"29047","partial":false},{"fips":"29049","partial":false},{"fips":"29051","partial":false},{"fips":"29053","partial":false},{"fips":"29057","partial":false},{"fips":"29059","partial":false},{"fips":"29061","partial":false},{"fips":"29063","partial":false},{"fips":"29067","partial":false},{"fips":"29075","partial":false},{"fips":"29077","partial":false},{"fips":"29079","partial":false},{"fips":"29081","partial":false},{"fips":"29083","partial":false},{"fips":"29085","partial":false},{"fips":"29087","partial":false},{"fips":"29089","partial":false},{"fips":"29095","partial":false},{"fips":"29097","partial":false},{"fips":"29101","partial":false},{"fips":"29103","partial":false},{"fips":"29105","partial":false},{"fips":"29107","partial":false},{"fips":"29109","partial":false},{"fips":"29111","partial":false},{"fips":"29115","partial":false},{"fips":"29117","partial":false},{"fips":"29121","partial":false},{"fips":"29119","partial":false},{"fips":"29129","partial":false},{"fips":"29135","partial":false},{"fips":"29141","partial":false},{"fips":"29145","partial":false},{"fips":"29147","partial":false},{"fips":"29153","partial":false},{"fips":"29159","partial":false},{"fips":"29165","partial":false},{"fips":"29167","partial":false},{"fips":"29171","partial":false},{"fips":"29177","partial":false},{"fips":"29195","partial":false},{"fips":"29197","partial":false},{"fips":"29199","partial":false},{"fips":"29185","partial":false},{"fips":"29209","partial":false},{"fips":"29211","partial":false},{"fips":"29213","partial":false},{"fips":"29217","partial":false},{"fips":"29225","partial":false},{"fips":"29227","partial":false},{"fips":"29229","partial":false}],"Long Island Section":[{"fips":"36059","partial":false},{"fips":"36103","partial":false}],"Los Angeles Section":[{"fips":"06037","partial":true}],"Louisville Section":[{"fips":"17025","partial":false},{"fips":"17047","partial":false},{"fips":"17059","partial":false},{"fips":"17065","partial":false},{"fips":"17069","partial":false},{"fips":"17101","partial":false},{"fips":"17159","partial":false},{"fips":"17165","partial":false},{"fips":"17185","partial":false},{"fips":"17191","partial":false},{"fips":"17193","partial":false},{"fips":"18019","partial":false},{"fips":"18025","partial":false},{"fips":"18027","partial":false},{"fips":"18037","partial":false},{"fips":"18043","partial":false},{"fips":"18051","partial":false},{"fips":"18061","partial":false},{"fips":"18077","partial":false},{"fips":"18083","partial":false},{"fips":"18101","partial":false},{"fips":"18117","partial":false},{"fips":"18123","partial":false},{"fips":"18125","partial":false},{"fips":"18129","partial":false},{"fips":"18143","partial":false},{"fips":"18147","partial":false},{"fips":"18163","partial":false},{"fips":"18173","partial":false},{"fips":"18175","partial":false},{"fips":"21001","partial":false},{"fips":"21003","partial":false},{"fips":"21009","partial":false},{"fips":"21027","partial":false},{"fips":"21029","partial":false},{"fips":"21031","partial":false},{"fips":"21041","partial":false},{"fips":"21047","partial":false},{"fips":"21053","partial":false},{"fips":"21057","partial":false},{"fips":"21059","partial":false},{"fips":"21061","partial":false},{"fips":"21085","partial":false},{"fips":"21087","partial":false},{"fips":"21091","partial":false},{"fips":"21093","partial":false},{"fips":"21099","partial":false},{"fips":"21101","partial":false},{"fips":"21103","partial":false},{"fips":"21107","partial":false},{"fips":"21111","partial":false},{"fips":"21123","partial":false},{"fips":"21141","partial":false},{"fips":"21155","partial":false},{"fips":"21149","partial":false},{"fips":"21163","partial":false},{"fips":"21169","partial":false},{"fips":"21171","partial":false},{"fips":"21177","partial":false},{"fips":"21179","partial":false},{"fips":"21183","partial":false},{"fips":"21185","partial":false},{"fips":"21207","partial":false},{"fips":"21211","partial":false},{"fips":"21213","partial":false},{"fips":"21215","partial":false},{"fips":"21217","partial":false},{"fips":"21219","partial":false},{"fips":"21223","partial":false},{"fips":"21225","partial":false},{"fips":"21227","partial":false},{"fips":"21229","partial":false},{"fips":"21233","partial":false}],"Metro Detroit Section":[{"fips":"26093","partial":false},{"fips":"26099","partial":false},{"fips":"26115","partial":false},{"fips":"26125","partial":false},{"fips":"26147","partial":false},{"fips":"26161","partial":false},{"fips":"26163","partial":false}],"Metropolitan Section":[{"fips":"36061","partial":false},{"fips":"36081","partial":false},{"fips":"36047","partial":false},{"fips":"36005","partial":false},{"fips":"36085","partial":false},{"fips":"36087","partial":false}],"Miami Section":[{"fips":"12086","partial":false},{"fips":"12087","partial":false}],"Mid-Continent Section":[{"fips":"40001","partial":false},{"fips":"40005","partial":false},{"fips":"40013","partial":false},{"fips":"40021","partial":false},{"fips":"40023","partial":false},{"fips":"40029","partial":false},{"fips":"40035","partial":false},{"fips":"40037","partial":false},{"fips":"40041","partial":false},{"fips":"40061","partial":false},{"fips":"40063","partial":false},{"fips":"40077","partial":false},{"fips":"40079","partial":false},{"fips":"40097","partial":false},{"fips":"40089","partial":false},{"fips":"40091","partial":false},{"fips":"40101","partial":false},{"fips":"40105","partial":false},{"fips":"40107","partial":false},{"fips":"40111","partial":false},{"fips":"40113","partial":false},{"fips":"40115","partial":false},{"fips":"40117","partial":false},{"fips":"40121","partial":false},{"fips":"40127","partial":false},{"fips":"40131","partial":false},{"fips":"40135","partial":false},{"fips":"40143","partial":false},{"fips":"40145","partial":false},{"fips":"40147","partial":false}],"Midlands Section":[{"fips":"45017","partial":false},{"fips":"45063","partial":false},{"fips":"45075","partial":false},{"fips":"45079","partial":false}],"Milwaukee Section":[{"fips":"26013","partial":false},{"fips":"26043","partial":false},{"fips":"26053","partial":false},{"fips":"26061","partial":false},{"fips":"26071","partial":false},{"fips":"26083","partial":false},{"fips":"26103","partial":false},{"fips":"26109","partial":false},{"fips":"26131","partial":false},{"fips":"55001","partial":false},{"fips":"55009","partial":false},{"fips":"55015","partial":false},{"fips":"55021","partial":false},{"fips":"55023","partial":false},{"fips":"55025","partial":false},{"fips":"55027","partial":false},{"fips":"55029","partial":false},{"fips":"55037","partial":false},{"fips":"55039","partial":false},{"fips":"55041","partial":false},{"fips":"55043","partial":false},{"fips":"55045","partial":false},{"fips":"55047","partial":false},{"fips":"55049","partial":false},{"fips":"55055","partial":false},{"fips":"55057","partial":false},{"fips":"55059","partial":false},{"fips":"55061","partial":false},{"fips":"55065","partial":false},{"fips":"55067","partial":false},{"fips":"55069","partial":false},{"fips":"55071","partial":false},{"fips":"55073","partial":false},{"fips":"55075","partial":false},{"fips":"55077","partial":false},{"fips":"55078","partial":false},{"fips":"55079","partial":false},{"fips":"55083","partial":false},{"fips":"55085","partial":false},{"fips":"55087","partial":false},{"fips":"55089","partial":false},{"fips":"55097","partial":false},{"fips":"55101","partial":false},{"fips":"55103","partial":false},{"fips":"55105","partial":false},{"fips":"55111","partial":false},{"fips":"55115","partial":false},{"fips":"55117","partial":false},{"fips":"55125","partial":false},{"fips":"55127","partial":false},{"fips":"55131","partial":false},{"fips":"55133","partial":false},{"fips":"55135","partial":false},{"fips":"55137","partial":false},{"fips":"55139","partial":false},{"fips":"55141","partial":false}],"Minnesota Section":[{"fips":"27001","partial":false},{"fips":"27003","partial":false},{"fips":"27005","partial":false},{"fips":"27007","partial":false},{"fips":"27009","partial":false},{"fips":"27011","partial":false},{"fips":"27013","partial":false},{"fips":"27015","partial":false},{"fips":"27017","partial":false},{"fips":"27019","partial":false},{"fips":"27021","partial":false},{"fips":"27023","partial":false},{"fips":"27025","partial":false},{"fips":"27027","partial":false},{"fips":"27029","partial":false},{"fips":"27031","partial":false},{"fips":"27033","partial":false},{"fips":"27035","partial":false},{"fips":"27037","partial":false},{"fips":"27039","partial":false},{"fips":"27041","partial":false},{"fips":"27043","partial":false},{"fips":"27045","partial":false},{"fips":"27047","partial":false},{"fips":"27049","partial":false},{"fips":"27051","partial":false},{"fips":"27053","partial":false},{"fips":"27057","partial":false},{"fips":"27059","partial":false},{"fips":"27061","partial":false},{"fips":"27063","partial":false},{"fips":"27065","partial":false},{"fips":"27067","partial":false},{"fips":"27069","partial":false},{"fips":"27071","partial":false},{"fips":"27073","partial":false},{"fips":"27075","partial":false},{"fips":"27077","partial":false},{"fips":"27079","partial":false},{"fips":"27087","partial":false},{"fips":"27089","partial":false},{"fips":"27091","partial":false},{"fips":"27085","partial":false},{"fips":"27093","partial":false},{"fips":"27095","partial":false},{"fips":"27097","partial":false},{"fips":"27099","partial":false},{"fips":"27103","partial":false},{"fips":"27107","partial":false},{"fips":"27109","partial":false},{"fips":"27111","partial":false},{"fips":"27113","partial":false},{"fips":"27115","partial":false},{"fips":"27119","partial":false},{"fips":"27121","partial":false},{"fips":"27123","partial":false},{"fips":"27125","partial":false},{"fips":"27127","partial":false},{"fips":"27129","partial":false},{"fips":"27131","partial":false},{"fips":"27135","partial":false},{"fips":"27139","partial":false},{"fips":"27141","partial":false},{"fips":"27143","partial":false},{"fips":"27137","partial":false},{"fips":"27145","partial":false},{"fips":"27147","partial":false},{"fips":"27149","partial":false},{"fips":"27151","partial":false},{"fips":"27153","partial":false},{"fips":"27155","partial":false},{"fips":"27157","partial":false},{"fips":"27159","partial":false},{"fips":"27161","partial":false},{"fips":"27163","partial":false},{"fips":"27165","partial":false},{"fips":"27167","partial":false},{"fips":"27171","partial":false},{"fips":"27173","partial":false},{"fips":"55003","partial":false},{"fips":"55005","partial":false},{"fips":"55007","partial":false},{"fips":"55011","partial":false},{"fips":"55013","partial":false},{"fips":"55017","partial":false},{"fips":"55019","partial":false},{"fips":"55031","partial":false},{"fips":"55033","partial":false},{"fips":"55035","partial":false},{"fips":"55051","partial":false},{"fips":"55091","partial":false},{"fips":"55093","partial":false},{"fips":"55095","partial":false},{"fips":"55099","partial":false},{"fips":"55107","partial":false},{"fips":"55113","partial":false},{"fips":"55109","partial":false},{"fips":"55119","partial":false},{"fips":"55129","partial":false},{"fips":"38001","partial":false},{"fips":"38003","partial":false},{"fips":"38005","partial":false},{"fips":"38007","partial":false},{"fips":"38009","partial":false},{"fips":"38011","partial":false},{"fips":"38013","partial":false},{"fips":"38015","partial":false},{"fips":"38017","partial":false},{"fips":"38019","partial":false},{"fips":"38021","partial":false},{"fips":"38023","partial":false},{"fips":"38025","partial":false},{"fips":"38027","partial":false},{"fips":"38029","partial":false},{"fips":"38031","partial":false},{"fips":"38033","partial":false},{"fips":"38035","partial":false},{"fips":"38037","partial":false},{"fips":"38039","partial":false},{"fips":"38041","partial":false},{"fips":"38043","partial":false},{"fips":"38045","partial":false},{"fips":"38047","partial":false},{"fips":"38049","partial":false},{"fips":"38051","partial":false},{"fips":"38053","partial":false},{"fips":"38055","partial":false},{"fips":"38057","partial":false},{"fips":"38059","partial":false},{"fips":"38061","partial":false},{"fips":"38063","partial":false},{"fips":"38065","partial":false},{"fips":"38067","partial":false},{"fips":"38069","partial":false},{"fips":"38071","partial":false},{"fips":"38073","partial":false},{"fips":"38075","partial":false},{"fips":"38077","partial":false},{"fips":"38079","partial":false},{"fips":"38081","partial":false},{"fips":"38083","partial":false},{"fips":"38085","partial":false},{"fips":"38087","partial":false},{"fips":"38089","partial":false},{"fips":"38091","partial":false},{"fips":"38093","partial":false},{"fips":"38095","partial":false},{"fips":"38097","partial":false},{"fips":"38099","partial":false},{"fips":"38101","partial":false},{"fips":"38103","partial":false},{"fips":"38105","partial":false}],"Mississippi Section":[{"fips":"28001","partial":false},{"fips":"28003","partial":false},{"fips":"28005","partial":false},{"fips":"28007","partial":false},{"fips":"28011","partial":false},{"fips":"28013","partial":false},{"fips":"28015","partial":false},{"fips":"28017","partial":false},{"fips":"28019","partial":false},{"fips":"28021","partial":false},{"fips":"28023","partial":false},{"fips":"28025","partial":false},{"fips":"28029","partial":false},{"fips":"28031","partial":false},{"fips":"28035","partial":false},{"fips":"28037","partial":false},{"fips":"28043","partial":false},{"fips":"28045","partial":false},{"fips":"28049","partial":false},{"fips":"28051","partial":false},{"fips":"28053","partial":false},{"fips":"28055","partial":false},{"fips":"28057","partial":false},{"fips":"28061","partial":false},{"fips":"28063","partial":false},{"fips":"28065","partial":false},{"fips":"28067","partial":false},{"fips":"28069","partial":false},{"fips":"28073","partial":false},{"fips":"28075","partial":false},{"fips":"28077","partial":false},{"fips":"28079","partial":false},{"fips":"28081","partial":false},{"fips":"28083","partial":false},{"fips":"28085","partial":false},{"fips":"28087","partial":false},{"fips":"28089","partial":false},{"fips":"28091","partial":false},{"fips":"28095","partial":false},{"fips":"28097","partial":false},{"fips":"28099","partial":false},{"fips":"28101","partial":false},{"fips":"28103","partial":false},{"fips":"28105","partial":false},{"fips":"28109","partial":false},{"fips":"28113","partial":false},{"fips":"28115","partial":false},{"fips":"28117","partial":false},{"fips":"28121","partial":false},{"fips":"28123","partial":false},{"fips":"28125","partial":false},{"fips":"28127","partial":false},{"fips":"28129","partial":false},{"fips":"28133","partial":false},{"fips":"28135","partial":false},{"fips":"28139","partial":false},{"fips":"28141","partial":false},{"fips":"28145","partial":false},{"fips":"28147","partial":false},{"fips":"28149","partial":false},{"fips":"28151","partial":false},{"fips":"28153","partial":false},{"fips":"28155","partial":false},{"fips":"28157","partial":false},{"fips":"28159","partial":false},{"fips":"28161","partial":false},{"fips":"28163","partial":false}],"Mobile Gulf Coast Section":[{"fips":"01003","partial":false},{"fips":"01025","partial":false},{"fips":"01035","partial":false},{"fips":"01039","partial":false},{"fips":"01053","partial":false},{"fips":"01061","partial":false},{"fips":"01097","partial":false},{"fips":"01099","partial":false},{"fips":"01129","partial":false},{"fips":"28039","partial":false},{"fips":"28041","partial":false},{"fips":"28047","partial":false},{"fips":"28059","partial":false},{"fips":"28111","partial":false},{"fips":"28131","partial":false}],"Mohawk Valley Section":[{"fips":"36041","partial":false},{"fips":"36043","partial":false},{"fips":"36049","partial":false},{"fips":"36065","partial":false},{"fips":"36077","partial":false}],"Montana Section":[{"fips":"30001","partial":false},{"fips":"30003","partial":false},{"fips":"30005","partial":false},{"fips":"30007","partial":false},{"fips":"30009","partial":false},{"fips":"30011","partial":false},{"fips":"30013","partial":false},{"fips":"30015","partial":false},{"fips":"30017","partial":false},{"fips":"30019","partial":false},{"fips":"30021","partial":false},{"fips":"30023","partial":false},{"fips":"30025","partial":false},{"fips":"30027","partial":false},{"fips":"30029","partial":false},{"fips":"30031","partial":false},{"fips":"30033","partial":false},{"fips":"30035","partial":false},{"fips":"30037","partial":false},{"fips":"30039","partial":false},{"fips":"30041","partial":false},{"fips":"30043","partial":false},{"fips":"30045","partial":false},{"fips":"30047","partial":false},{"fips":"30049","partial":false},{"fips":"30051","partial":false},{"fips":"30053","partial":false},{"fips":"30055","partial":false},{"fips":"30057","partial":false},{"fips":"30059","partial":false},{"fips":"30061","partial":false},{"fips":"30063","partial":false},{"fips":"30065","partial":false},{"fips":"30067","partial":false},{"fips":"30069","partial":false},{"fips":"30071","partial":false},{"fips":"30073","partial":false},{"fips":"30075","partial":false},{"fips":"30077","partial":false},{"fips":"30079","partial":false},{"fips":"30081","partial":false},{"fips":"30083","partial":false},{"fips":"30085","partial":false},{"fips":"30087","partial":false},{"fips":"30089","partial":false},{"fips":"30091","partial":false},{"fips":"30093","partial":false},{"fips":"30095","partial":false},{"fips":"30097","partial":false},{"fips":"30099","partial":false},{"fips":"30101","partial":false},{"fips":"30103","partial":false},{"fips":"30105","partial":false},{"fips":"30107","partial":false},{"fips":"30109","partial":false},{"fips":"30111","partial":false}],"Nebraska Section":[{"fips":"31001","partial":false},{"fips":"31003","partial":false},{"fips":"31005","partial":false},{"fips":"31007","partial":false},{"fips":"31009","partial":false},{"fips":"31011","partial":false},{"fips":"31013","partial":false},{"fips":"31015","partial":false},{"fips":"31017","partial":false},{"fips":"31019","partial":false},{"fips":"31021","partial":false},{"fips":"31023","partial":false},{"fips":"31025","partial":false},{"fips":"31027","partial":false},{"fips":"31029","partial":false},{"fips":"31031","partial":false},{"fips":"31033","partial":false},{"fips":"31035","partial":false},{"fips":"31037","partial":false},{"fips":"31039","partial":false},{"fips":"31041","partial":false},{"fips":"31043","partial":false},{"fips":"31045","partial":false},{"fips":"31047","partial":false},{"fips":"31049","partial":false},{"fips":"31051","partial":false},{"fips":"31053","partial":false},{"fips":"31055","partial":false},{"fips":"31057","partial":false},{"fips":"31059","partial":false},{"fips":"31061","partial":false},{"fips":"31063","partial":false},{"fips":"31065","partial":false},{"fips":"31067","partial":false},{"fips":"31069","partial":false},{"fips":"31071","partial":false},{"fips":"31073","partial":false},{"fips":"31075","partial":false},{"fips":"31077","partial":false},{"fips":"31079","partial":false},{"fips":"31081","partial":false},{"fips":"31083","partial":false},{"fips":"31085","partial":false},{"fips":"31087","partial":false},{"fips":"31089","partial":false},{"fips":"31091","partial":false},{"fips":"31093","partial":false},{"fips":"31095","partial":false},{"fips":"31097","partial":false},{"fips":"31099","partial":false},{"fips":"31101","partial":false},{"fips":"31103","partial":false},{"fips":"31105","partial":false},{"fips":"31107","partial":false},{"fips":"31109","partial":false},{"fips":"31111","partial":false},{"fips":"31113","partial":false},{"fips":"31115","partial":false},{"fips":"31117","partial":false},{"fips":"31119","partial":false},{"fips":"31121","partial":false},{"fips":"31123","partial":false},{"fips":"31125","partial":false},{"fips":"31127","partial":false},{"fips":"31129","partial":false},{"fips":"31131","partial":false},{"fips":"31133","partial":false},{"fips":"31135","partial":false},{"fips":"31137","partial":false},{"fips":"31139","partial":false},{"fips":"31141","partial":false},{"fips":"31143","partial":false},{"fips":"31145","partial":false},{"fips":"31147","partial":false},{"fips":"31149","partial":false},{"fips":"31151","partial":false},{"fips":"31153","partial":false},{"fips":"31155","partial":false},{"fips":"31157","partial":false},{"fips":"31159","partial":false},{"fips":"31161","partial":false},{"fips":"31163","partial":false},{"fips":"31165","partial":false},{"fips":"31167","partial":false},{"fips":"31169","partial":false},{"fips":"31171","partial":false},{"fips":"31173","partial":false},{"fips":"31175","partial":false},{"fips":"31177","partial":false},{"fips":"31179","partial":false},{"fips":"31181","partial":false},{"fips":"31183","partial":false},{"fips":"31185","partial":false},{"fips":"46003","partial":false},{"fips":"46005","partial":false},{"fips":"46007","partial":false},{"fips":"46009","partial":false},{"fips":"46011","partial":false},{"fips":"46013","partial":false},{"fips":"46015","partial":false},{"fips":"46017","partial":false},{"fips":"46019","partial":false},{"fips":"46021","partial":false},{"fips":"46023","partial":false},{"fips":"46025","partial":false},{"fips":"46027","partial":false},{"fips":"46029","partial":false},{"fips":"46031","partial":false},{"fips":"46033","partial":false},{"fips":"46035","partial":false},{"fips":"46037","partial":false},{"fips":"46039","partial":false},{"fips":"46041","partial":false},{"fips":"46043","partial":false},{"fips":"46045","partial":false},{"fips":"46047","partial":false},{"fips":"46049","partial":false},{"fips":"46051","partial":false},{"fips":"46053","partial":false},{"fips":"46055","partial":false},{"fips":"46057","partial":false},{"fips":"46059","partial":false},{"fips":"46061","partial":false},{"fips":"46063","partial":false},{"fips":"46065","partial":false},{"fips":"46067","partial":false},{"fips":"46069","partial":false},{"fips":"46071","partial":false},{"fips":"46073","partial":false},{"fips":"46075","partial":false},{"fips":"46077","partial":false},{"fips":"46079","partial":false},{"fips":"46081","partial":false},{"fips":"46083","partial":false},{"fips":"46085","partial":false},{"fips":"46087","partial":false},{"fips":"46089","partial":false},{"fips":"46091","partial":false},{"fips":"46093","partial":false},{"fips":"46095","partial":false},{"fips":"46097","partial":false},{"fips":"46099","partial":false},{"fips":"46101","partial":false},{"fips":"46102","partial":false},{"fips":"46103","partial":false},{"fips":"46105","partial":false},{"fips":"46107","partial":false},{"fips":"46109","partial":false},{"fips":"46111","partial":false},{"fips":"46115","partial":false},{"fips":"46117","partial":false},{"fips":"46119","partial":false},{"fips":"46121","partial":false},{"fips":"46123","partial":false},{"fips":"46125","partial":false},{"fips":"46127","partial":false},{"fips":"46129","partial":false},{"fips":"46135","partial":false},{"fips":"46137","partial":false},{"fips":"19009","partial":false},{"fips":"19029","partial":false},{"fips":"19035","partial":false},{"fips":"19047","partial":false},{"fips":"19071","partial":false},{"fips":"19085","partial":false},{"fips":"19093","partial":false},{"fips":"19119","partial":false},{"fips":"19129","partial":false},{"fips":"19133","partial":false},{"fips":"19137","partial":false},{"fips":"19141","partial":false},{"fips":"19143","partial":false},{"fips":"19145","partial":false},{"fips":"19149","partial":false},{"fips":"19155","partial":false},{"fips":"19165","partial":false},{"fips":"19167","partial":false},{"fips":"19193","partial":false},{"fips":"27081","partial":false},{"fips":"27083","partial":false},{"fips":"27101","partial":false},{"fips":"27105","partial":false},{"fips":"27117","partial":false},{"fips":"27133","partial":false}],"New Mexico Section":[{"fips":"35003","partial":false},{"fips":"35005","partial":false},{"fips":"35009","partial":false},{"fips":"35011","partial":false},{"fips":"35013","partial":false},{"fips":"35015","partial":false},{"fips":"35017","partial":false},{"fips":"35019","partial":false},{"fips":"35023","partial":false},{"fips":"35025","partial":false},{"fips":"35027","partial":false},{"fips":"35029","partial":false},{"fips":"35035","partial":false},{"fips":"35041","partial":false},{"fips":"35051","partial":false},{"fips":"35053","partial":false},{"fips":"35057","partial":false},{"fips":"35061","partial":false}],"New Orleans Section":[{"fips":"22007","partial":false},{"fips":"22051","partial":false},{"fips":"22057","partial":false},{"fips":"22071","partial":false},{"fips":"22075","partial":false},{"fips":"22087","partial":false},{"fips":"22089","partial":false},{"fips":"22093","partial":false},{"fips":"22101","partial":false},{"fips":"22103","partial":false},{"fips":"22105","partial":false},{"fips":"22117","partial":false}],"North Alabama Section":[{"fips":"01033","partial":false},{"fips":"01059","partial":false},{"fips":"01077","partial":false},{"fips":"01079","partial":false},{"fips":"01083","partial":false},{"fips":"01089","partial":false},{"fips":"01095","partial":false},{"fips":"01103","partial":false}],"North Jersey Section":[{"fips":"34003","partial":false},{"fips":"34013","partial":false},{"fips":"34017","partial":false},{"fips":"34027","partial":false},{"fips":"34031","partial":false},{"fips":"34037","partial":false}],"Northeast Florida Section":[{"fips":"12001","partial":false},{"fips":"12003","partial":false},{"fips":"12007","partial":false},{"fips":"12019","partial":false},{"fips":"12023","partial":false},{"fips":"12029","partial":false},{"fips":"12031","partial":false},{"fips":"12035","partial":false},{"fips":"12041","partial":false},{"fips":"12047","partial":false},{"fips":"12067","partial":false},{"fips":"12075","partial":false},{"fips":"12083","partial":false},{"fips":"12089","partial":false},{"fips":"12107","partial":false},{"fips":"12109","partial":false},{"fips":"12121","partial":false},{"fips":"12125","partial":false}],"Northeast Ohio Section":[{"fips":"39005","partial":false},{"fips":"39007","partial":false},{"fips":"39013","partial":false},{"fips":"39019","partial":false},{"fips":"39029","partial":false},{"fips":"39031","partial":false},{"fips":"39035","partial":false},{"fips":"39055","partial":false},{"fips":"39067","partial":false},{"fips":"39075","partial":false},{"fips":"39081","partial":false},{"fips":"39085","partial":false},{"fips":"39093","partial":false},{"fips":"39099","partial":false},{"fips":"39103","partial":false},{"fips":"39111","partial":false},{"fips":"39121","partial":false},{"fips":"39133","partial":false},{"fips":"39139","partial":false},{"fips":"39151","partial":false},{"fips":"39153","partial":false},{"fips":"39155","partial":false},{"fips":"39157","partial":false},{"fips":"39169","partial":false},{"fips":"42073","partial":false},{"fips":"42085","partial":false}],"Northeast Texas Section":[{"fips":"48001","partial":false},{"fips":"48037","partial":false},{"fips":"48063","partial":false},{"fips":"48067","partial":false},{"fips":"48073","partial":false},{"fips":"48119","partial":false},{"fips":"48145","partial":false},{"fips":"48159","partial":false},{"fips":"48161","partial":false},{"fips":"48183","partial":false},{"fips":"48203","partial":false},{"fips":"48213","partial":false},{"fips":"48217","partial":false},{"fips":"48223","partial":false},{"fips":"48225","partial":false},{"fips":"48277","partial":false},{"fips":"48289","partial":false},{"fips":"48293","partial":false},{"fips":"48313","partial":false},{"fips":"48315","partial":false},{"fips":"48309","partial":false},{"fips":"48343","partial":false},{"fips":"48347","partial":false},{"fips":"48349","partial":false},{"fips":"48365","partial":false},{"fips":"48379","partial":false},{"fips":"48387","partial":false},{"fips":"48395","partial":false},{"fips":"48401","partial":false},{"fips":"48405","partial":false},{"fips":"48419","partial":false},{"fips":"48423","partial":false},{"fips":"48449","partial":false},{"fips":"48459","partial":false},{"fips":"48467","partial":false},{"fips":"48499","partial":false}],"Northern New England Section":[{"fips":"23001","partial":false},{"fips":"23003","partial":false},{"fips":"23005","partial":false},{"fips":"23007","partial":false},{"fips":"23009","partial":false},{"fips":"23011","partial":false},{"fips":"23013","partial":false},{"fips":"23015","partial":false},{"fips":"23017","partial":false},{"fips":"23019","partial":false},{"fips":"23021","partial":false},{"fips":"23023","partial":false},{"fips":"23025","partial":false},{"fips":"23027","partial":false},{"fips":"23029","partial":false},{"fips":"23031","partial":false},{"fips":"33001","partial":false},{"fips":"33003","partial":false},{"fips":"33007","partial":false},{"fips":"33011","partial":false},{"fips":"33013","partial":false},{"fips":"33015","partial":false},{"fips":"33017","partial":false}],"Northern New Mexico Section":[{"fips":"35001","partial":false},{"fips":"35006","partial":false},{"fips":"35007","partial":false},{"fips":"35021","partial":false},{"fips":"35028","partial":false},{"fips":"35031","partial":false},{"fips":"35033","partial":false},{"fips":"35037","partial":false},{"fips":"35039","partial":false},{"fips":"35045","partial":false},{"fips":"35047","partial":false},{"fips":"35043","partial":false},{"fips":"35049","partial":false},{"fips":"35055","partial":false},{"fips":"35059","partial":false}],"Northwest Florida Section":[{"fips":"12033","partial":false},{"fips":"12091","partial":false},{"fips":"12113","partial":false},{"fips":"12131","partial":false}],"Northwest Ohio Section":[{"fips":"39003","partial":false},{"fips":"39011","partial":false},{"fips":"39033","partial":false},{"fips":"39043","partial":false},{"fips":"39051","partial":false},{"fips":"39063","partial":false},{"fips":"39065","partial":false},{"fips":"39069","partial":false},{"fips":"39077","partial":false},{"fips":"39095","partial":false},{"fips":"39107","partial":false},{"fips":"39123","partial":false},{"fips":"39137","partial":false},{"fips":"39143","partial":false},{"fips":"39147","partial":false},{"fips":"39161","partial":false},{"fips":"39173","partial":false},{"fips":"39175","partial":false}],"Palm Beach Section":[{"fips":"12011","partial":false},{"fips":"12015","partial":false},{"fips":"12021","partial":false},{"fips":"12043","partial":false},{"fips":"12051","partial":false},{"fips":"12071","partial":false},{"fips":"12085","partial":false},{"fips":"12099","partial":false},{"fips":"12111","partial":false}],"Philadelphia Section":[{"fips":"34001","partial":false},{"fips":"34007","partial":false},{"fips":"34009","partial":false},{"fips":"34011","partial":false},{"fips":"34015","partial":false},{"fips":"42029","partial":false},{"fips":"42045","partial":false},{"fips":"42091","partial":false},{"fips":"42101","partial":false}],"Piedmont-Carolina Section":[{"fips":"37003","partial":false},{"fips":"37007","partial":false},{"fips":"37023","partial":false},{"fips":"37025","partial":false},{"fips":"37027","partial":false},{"fips":"37035","partial":false},{"fips":"37045","partial":false},{"fips":"37071","partial":false},{"fips":"37097","partial":false},{"fips":"37109","partial":false},{"fips":"37119","partial":false},{"fips":"37123","partial":false},{"fips":"37153","partial":false},{"fips":"37159","partial":false},{"fips":"37161","partial":false},{"fips":"37167","partial":false},{"fips":"37179","partial":false},{"fips":"45091","partial":false}],"Pittsburgh Section":[{"fips":"42003","partial":false},{"fips":"42005","partial":false},{"fips":"42007","partial":false},{"fips":"42019","partial":false},{"fips":"42031","partial":false},{"fips":"42051","partial":false},{"fips":"42053","partial":false},{"fips":"42059","partial":false},{"fips":"42063","partial":false},{"fips":"42065","partial":false},{"fips":"42111","partial":false},{"fips":"42125","partial":false},{"fips":"42129","partial":false}],"Rochester Section":[{"fips":"36037","partial":false},{"fips":"36051","partial":false},{"fips":"36055","partial":false},{"fips":"36069","partial":false},{"fips":"36073","partial":false},{"fips":"36117","partial":false},{"fips":"36121","partial":false}],"Sabine Section":[{"fips":"22003","partial":false},{"fips":"22011","partial":false},{"fips":"22019","partial":false},{"fips":"22023","partial":false},{"fips":"22053","partial":false},{"fips":"22085","partial":false},{"fips":"22115","partial":false},{"fips":"48071","partial":false},{"fips":"48199","partial":false},{"fips":"48241","partial":false},{"fips":"48245","partial":false},{"fips":"48351","partial":false},{"fips":"48361","partial":false},{"fips":"48403","partial":false},{"fips":"48457","partial":false}],"Salish Sea Section":[{"fips":"53029","partial":false},{"fips":"53055","partial":false},{"fips":"53057","partial":false},{"fips":"53073","partial":false}],"Santa Clara Valley Section":[{"fips":"06001","partial":false},{"fips":"06013","partial":false},{"fips":"06015","partial":false},{"fips":"06023","partial":false},{"fips":"06033","partial":false},{"fips":"06041","partial":false},{"fips":"06045","partial":false},{"fips":"06053","partial":false},{"fips":"06055","partial":false},{"fips":"06069","partial":false},{"fips":"06075","partial":false},{"fips":"06077","partial":false},{"fips":"06081","partial":false},{"fips":"06085","partial":false},{"fips":"06087","partial":false},{"fips":"06095","partial":false},{"fips":"06097","partial":false},{"fips":"06099","partial":false},{"fips":"06105","partial":false}],"South Texas Section":[{"fips":"48005","partial":false},{"fips":"48007","partial":false},{"fips":"48015","partial":false},{"fips":"48039","partial":false},{"fips":"48041","partial":false},{"fips":"48057","partial":false},{"fips":"48089","partial":false},{"fips":"48123","partial":false},{"fips":"48149","partial":false},{"fips":"48157","partial":false},{"fips":"48167","partial":false},{"fips":"48175","partial":false},{"fips":"48185","partial":false},{"fips":"48201","partial":false},{"fips":"48239","partial":false},{"fips":"48285","partial":false},{"fips":"48291","partial":false},{"fips":"48321","partial":false},{"fips":"48373","partial":false},{"fips":"48391","partial":false},{"fips":"48407","partial":false},{"fips":"48455","partial":false},{"fips":"48469","partial":false},{"fips":"48471","partial":false},{"fips":"48473","partial":false},{"fips":"48477","partial":false},{"fips":"48481","partial":false}],"St. Joseph Valley Section":[{"fips":"18007","partial":false},{"fips":"18039","partial":false},{"fips":"18049","partial":false},{"fips":"18073","partial":false},{"fips":"18085","partial":false},{"fips":"18091","partial":false},{"fips":"18099","partial":false},{"fips":"18111","partial":false},{"fips":"18127","partial":false},{"fips":"18131","partial":false},{"fips":"18141","partial":false},{"fips":"18149","partial":false},{"fips":"18181","partial":false},{"fips":"26021","partial":false},{"fips":"26027","partial":false}],"St. Louis Section":[{"fips":"17001","partial":false},{"fips":"17005","partial":false},{"fips":"17013","partial":false},{"fips":"17027","partial":false},{"fips":"17051","partial":false},{"fips":"17061","partial":false},{"fips":"17081","partial":false},{"fips":"17083","partial":false},{"fips":"17117","partial":false},{"fips":"17119","partial":false},{"fips":"17121","partial":false},{"fips":"17133","partial":false},{"fips":"17135","partial":false},{"fips":"17145","partial":false},{"fips":"17149","partial":false},{"fips":"17157","partial":false},{"fips":"17171","partial":false},{"fips":"17163","partial":false},{"fips":"17189","partial":false},{"fips":"29007","partial":false},{"fips":"29017","partial":false},{"fips":"29023","partial":false},{"fips":"29027","partial":false},{"fips":"29035","partial":false},{"fips":"29055","partial":false},{"fips":"29065","partial":false},{"fips":"29071","partial":false},{"fips":"29073","partial":false},{"fips":"29091","partial":false},{"fips":"29093","partial":false},{"fips":"29099","partial":false},{"fips":"29113","partial":false},{"fips":"29123","partial":false},{"fips":"29125","partial":false},{"fips":"29127","partial":false},{"fips":"29131","partial":false},{"fips":"29137","partial":false},{"fips":"29139","partial":false},{"fips":"29149","partial":false},{"fips":"29151","partial":false},{"fips":"29157","partial":false},{"fips":"29161","partial":false},{"fips":"29163","partial":false},{"fips":"29169","partial":false},{"fips":"29173","partial":false},{"fips":"29175","partial":false},{"fips":"29179","partial":false},{"fips":"29181","partial":false},{"fips":"29203","partial":false},{"fips":"29205","partial":false},{"fips":"29183","partial":false},{"fips":"29187","partial":false},{"fips":"29189","partial":false},{"fips":"29186","partial":false},{"fips":"29215","partial":false},{"fips":"29219","partial":false},{"fips":"29221","partial":false},{"fips":"29223","partial":false}],"Susquehanna Section":[{"fips":"42001","partial":false},{"fips":"42041","partial":false},{"fips":"42043","partial":false},{"fips":"42067","partial":false},{"fips":"42071","partial":false},{"fips":"42075","partial":false},{"fips":"42099","partial":false},{"fips":"42133","partial":false},{"fips":"42055","partial":false}],"Tallahassee Section":[{"fips":"12013","partial":false},{"fips":"12037","partial":false},{"fips":"12039","partial":false},{"fips":"12065","partial":false},{"fips":"12073","partial":false},{"fips":"12077","partial":false},{"fips":"12079","partial":false},{"fips":"12123","partial":false},{"fips":"12129","partial":false},{"fips":"13007","partial":false},{"fips":"13027","partial":false},{"fips":"13037","partial":false},{"fips":"13061","partial":false},{"fips":"13071","partial":false},{"fips":"13075","partial":false},{"fips":"13087","partial":false},{"fips":"13095","partial":false},{"fips":"13099","partial":false},{"fips":"13131","partial":false},{"fips":"13185","partial":false},{"fips":"13201","partial":false},{"fips":"13205","partial":false},{"fips":"13253","partial":false},{"fips":"13275","partial":false},{"fips":"13277","partial":false},{"fips":"13287","partial":false},{"fips":"13321","partial":false}],"Treasure Valley Section":[{"fips":"16001","partial":false},{"fips":"16003","partial":false},{"fips":"16015","partial":false},{"fips":"16025","partial":false},{"fips":"16027","partial":false},{"fips":"16031","partial":false},{"fips":"16039","partial":false},{"fips":"16045","partial":false},{"fips":"16047","partial":false},{"fips":"16053","partial":false},{"fips":"16063","partial":false},{"fips":"16067","partial":false},{"fips":"16073","partial":false},{"fips":"16075","partial":false},{"fips":"16083","partial":false},{"fips":"16085","partial":false},{"fips":"16087","partial":false},{"fips":"41001","partial":false},{"fips":"41023","partial":false},{"fips":"41025","partial":false},{"fips":"41045","partial":false}],"Virginia Section":[{"fips":"51005","partial":false},{"fips":"51009","partial":false},{"fips":"51011","partial":false},{"fips":"51015","partial":false},{"fips":"51017","partial":false},{"fips":"51019","partial":false},{"fips":"51021","partial":false},{"fips":"51023","partial":false},{"fips":"51029","partial":false},{"fips":"51530","partial":false},{"fips":"51031","partial":false},{"fips":"51035","partial":false},{"fips":"51037","partial":false},{"fips":"51045","partial":false},{"fips":"51049","partial":false},{"fips":"51590","partial":false},{"fips":"51063","partial":false},{"fips":"51067","partial":false},{"fips":"51640","partial":false},{"fips":"51071","partial":false},{"fips":"51077","partial":false},{"fips":"51083","partial":false},{"fips":"51089","partial":false},{"fips":"51091","partial":false},{"fips":"51680","partial":false},{"fips":"51121","partial":false},{"fips":"51720","partial":false},{"fips":"51141","partial":false},{"fips":"51143","partial":false},{"fips":"51147","partial":false},{"fips":"51155","partial":false},{"fips":"51750","partial":false},{"fips":"51770","partial":false},{"fips":"51163","partial":false},{"fips":"51775","partial":false},{"fips":"51790","partial":false},{"fips":"51820","partial":false},{"fips":"51197","partial":false}],"Washington DC Section":[{"fips":"11001","partial":false},{"fips":"24009","partial":false},{"fips":"24017","partial":false},{"fips":"24031","partial":false},{"fips":"24033","partial":false},{"fips":"24037","partial":false},{"fips":"51510","partial":false},{"fips":"51013","partial":false},{"fips":"51043","partial":false},{"fips":"51047","partial":false},{"fips":"51059","partial":false},{"fips":"51610","partial":false},{"fips":"51061","partial":false},{"fips":"51069","partial":false},{"fips":"51630","partial":false},{"fips":"51079","partial":false},{"fips":"51660","partial":false},{"fips":"51099","partial":false},{"fips":"51107","partial":false},{"fips":"51113","partial":false},{"fips":"51683","partial":false},{"fips":"51137","partial":false},{"fips":"51139","partial":false},{"fips":"51153","partial":false},{"fips":"51157","partial":false},{"fips":"51165","partial":false},{"fips":"51171","partial":false},{"fips":"51177","partial":false},{"fips":"51179","partial":false},{"fips":"51187","partial":false},{"fips":"51840","partial":false}],"West Texas Section":[{"fips":"48009","partial":false},{"fips":"48023","partial":false},{"fips":"48035","partial":false},{"fips":"48049","partial":false},{"fips":"48059","partial":false},{"fips":"48077","partial":false},{"fips":"48081","partial":false},{"fips":"48083","partial":false},{"fips":"48093","partial":false},{"fips":"48095","partial":false},{"fips":"48099","partial":false},{"fips":"48105","partial":false},{"fips":"48133","partial":false},{"fips":"48137","partial":false},{"fips":"48143","partial":false},{"fips":"48151","partial":false},{"fips":"48155","partial":false},{"fips":"48193","partial":false},{"fips":"48197","partial":false},{"fips":"48207","partial":false},{"fips":"48235","partial":false},{"fips":"48237","partial":false},{"fips":"48253","partial":false},{"fips":"48263","partial":false},{"fips":"48267","partial":false},{"fips":"48271","partial":false},{"fips":"48275","partial":false},{"fips":"48281","partial":false},{"fips":"48319","partial":false},{"fips":"48307","partial":false},{"fips":"48327","partial":false},{"fips":"48333","partial":false},{"fips":"48335","partial":false},{"fips":"48353","partial":false},{"fips":"48363","partial":false},{"fips":"48399","partial":false},{"fips":"48411","partial":false},{"fips":"48413","partial":false},{"fips":"48415","partial":false},{"fips":"48417","partial":false},{"fips":"48429","partial":false},{"fips":"48431","partial":false},{"fips":"48433","partial":false},{"fips":"48435","partial":false},{"fips":"48441","partial":false},{"fips":"48447","partial":false},{"fips":"48451","partial":false},{"fips":"48465","partial":false},{"fips":"48485","partial":false},{"fips":"48487","partial":false},{"fips":"48503","partial":false}],"West Virginia Section":[{"fips":"39087","partial":false},{"fips":"54001","partial":false},{"fips":"54005","partial":false},{"fips":"54007","partial":false},{"fips":"54009","partial":false},{"fips":"54011","partial":false},{"fips":"54013","partial":false},{"fips":"54015","partial":false},{"fips":"54017","partial":false},{"fips":"54019","partial":false},{"fips":"54021","partial":false},{"fips":"54023","partial":false},{"fips":"54025","partial":false},{"fips":"54027","partial":false},{"fips":"54029","partial":false},{"fips":"54031","partial":false},{"fips":"54033","partial":false},{"fips":"54035","partial":false},{"fips":"54039","partial":false},{"fips":"54041","partial":false},{"fips":"54043","partial":false},{"fips":"54045","partial":false},{"fips":"54049","partial":false},{"fips":"54051","partial":false},{"fips":"54053","partial":false},{"fips":"54047","partial":false},{"fips":"54055","partial":false},{"fips":"54059","partial":false},{"fips":"54061","partial":false},{"fips":"54063","partial":false},{"fips":"54067","partial":false},{"fips":"54069","partial":false},{"fips":"54071","partial":false},{"fips":"54073","partial":false},{"fips":"54075","partial":false},{"fips":"54077","partial":false},{"fips":"54079","partial":false},{"fips":"54081","partial":false},{"fips":"54083","partial":false},{"fips":"54085","partial":false},{"fips":"54087","partial":false},{"fips":"54089","partial":false},{"fips":"54091","partial":false},{"fips":"54093","partial":false},{"fips":"54095","partial":false},{"fips":"54097","partial":false},{"fips":"54099","partial":false},{"fips":"54101","partial":false},{"fips":"54103","partial":false},{"fips":"54105","partial":false},{"fips":"54107","partial":false},{"fips":"54109","partial":false}],"Western Washington Section":[{"fips":"53009","partial":false},{"fips":"53031","partial":false},{"fips":"53033","partial":false},{"fips":"53035","partial":false},{"fips":"53061","partial":false}]};
+const jurisdictionUnavailable = new Set(["Eastern North Carolina Section","Nashville Section","Oregon Section","Panhandle Plains Section","Pee Dee Section","Puget Sound Section"]);
+
+
+const svg=d3.select("#map"), projection=d3.geoAlbersUsa().scale(1300).translate([487.5,305]);
+const pathProjected=d3.geoPath(), pathGeo=d3.geoPath(projection);
+const states=feature(us,us.objects.states).features.filter(d=>!["02","15"].includes(String(d.id).padStart(2,"0")));
+const counties=feature(us,us.objects.counties).features.filter(d=>!["02","15"].includes(String(d.id).padStart(5,"0").slice(0,2)));
+
+const defs=svg.append("defs");
+const pattern=defs.append("pattern").attr("id","partialHatch").attr("patternUnits","userSpaceOnUse").attr("width",6).attr("height",6).attr("patternTransform","rotate(45)");
+pattern.append("rect").attr("width",6).attr("height",6).attr("fill","#dcefe9").attr("fill-opacity",0.44);
+pattern.append("line").attr("x1",0).attr("y1",0).attr("x2",0).attr("y2",6).attr("stroke","#16836b").attr("stroke-width",2).attr("stroke-opacity",0.62);
+
+const stateLayer=svg.append("g"), jurisdictionLayer=svg.append("g"), analysisLayer=svg.append("g"), coverageLayer=svg.append("g"), studentCoverageLayer=svg.append("g"), simLayer=svg.append("g"), pointLayer=svg.append("g"), studentPointLayer=svg.append("g");
+stateLayer.selectAll("path").data(states).join("path").attr("class","state").attr("d",pathProjected);
+
+const statePaths=stateLayer.selectAll("path").nodes();
+const radiusEl=document.getElementById("radius"), radiusValue=document.getElementById("radiusValue"), studentRadiusEl=document.getElementById("studentRadius"), studentRadiusValue=document.getElementById("studentRadiusValue");
+const sectionPicker=document.getElementById("sectionPicker"), selectedSectionsEl=document.getElementById("selectedSections"), studentPicker=document.getElementById("studentPicker"), selectedStudentsEl=document.getElementById("selectedStudents"), stateEl=document.getElementById("stateFilter"), territoryEl=document.getElementById("territoryFilter"), modeEl=document.getElementById("mode");
+const tip=document.getElementById("tip"), mapPanel=document.querySelector(".map-panel");
+const showCoverage=document.getElementById("showCoverage"), showJurisdiction=document.getElementById("showJurisdiction"), showPoints=document.getElementById("showPoints"), showStudents=document.getElementById("showStudents"), showStudentCoverage=document.getElementById("showStudentCoverage"), includeStudentsMetrics=document.getElementById("includeStudentsMetrics"), includeSimulator=document.getElementById("includeSimulator");
+
+[...new Set(raw.map(d=>d.state))].sort().forEach(s=>{const o=document.createElement("option");o.value=s;o.textContent=s;stateEl.appendChild(o)});
+raw.slice().sort((a,b)=>a.name.localeCompare(b.name)).forEach(d=>{const o=document.createElement("option");o.value=d.name;o.textContent=`${d.name} — ${d.city}, ${d.state}`;sectionPicker.appendChild(o)});
+studentRaw.slice().sort((a,b)=>a.name.localeCompare(b.name)).forEach(d=>{const o=document.createElement("option");o.value=d.name;o.textContent=`${d.name} — ${d.city}, ${d.state}`;studentPicker.appendChild(o)});
+
+
+let selected=null, selectedStudent=null, sim=null, placingSim=false, samples=[], selectedSectionNames=[], selectedStudentNames=[];
+
+function hav(a,b,c,d){
+  const R=3958.7613, toRad=x=>x*Math.PI/180;
+  const p1=toRad(a), p2=toRad(c), dp=toRad(c-a), dl=toRad(d-b);
+  const h=Math.sin(dp/2)**2+Math.cos(p1)*Math.cos(p2)*Math.sin(dl/2)**2;
+  return 2*R*Math.asin(Math.sqrt(h));
+}
+function visible(){
+  const st=stateEl.value, tr=territoryEl.value;
+  return raw.filter(d=>
+    (!selectedSectionNames.length || selectedSectionNames.includes(d.name)) &&
+    (!st || d.state===st) &&
+    (!tr || d.territory===tr)
+  );
+}
+function nearestList(d,pool=raw){
+  return pool.filter(x=>x!==d).map(x=>({...x,dist:hav(d.lat,d.lon,x.lat,x.lon)})).sort((a,b)=>a.dist-b.dist);
+}
+
+function renderSelectedSections(){
+  selectedSectionsEl.innerHTML="";
+  selectedSectionNames.forEach(name=>{
+    const chip=document.createElement("span");
+    chip.className="section-chip";
+    chip.innerHTML=`<span>${name}</span><button type="button" aria-label="Remove ${name}">×</button>`;
+    chip.querySelector("button").addEventListener("click",()=>{
+      selectedSectionNames=selectedSectionNames.filter(n=>n!==name);
+      renderSelectedSections();
+      draw();
+    });
+    selectedSectionsEl.appendChild(chip);
+  });
+}
+function addSectionByName(name){
+  if(!name || selectedSectionNames.includes(name)) return;
+  selectedSectionNames.push(name);
+  selectedSectionNames.sort((a,b)=>a.localeCompare(b));
+  renderSelectedSections();
+  draw();
+}
+document.getElementById("addSectionBtn").addEventListener("click",()=>{
+  addSectionByName(sectionPicker.value);
+  sectionPicker.value="";
+});
+sectionPicker.addEventListener("change",()=>{
+  if(sectionPicker.value){
+    addSectionByName(sectionPicker.value);
+    sectionPicker.value="";
+  }
+});
+document.getElementById("clearSectionsBtn").addEventListener("click",()=>{
+  selectedSectionNames=[];
+  renderSelectedSections();
+  draw();
+});
+document.getElementById("selectAllSectionsBtn").addEventListener("click",()=>{
+  selectedSectionNames=raw.map(d=>d.name).sort((a,b)=>a.localeCompare(b));
+  renderSelectedSections();
+  draw();
+});
+
+
+
+function visibleStudents(){
+  const st=stateEl.value;
+  return studentRaw.filter(d=>
+    (!selectedStudentNames.length || selectedStudentNames.includes(d.name)) &&
+    (!st || d.state===st)
+  );
+}
+function renderSelectedStudents(){
+  selectedStudentsEl.innerHTML="";
+  selectedStudentNames.forEach(name=>{
+    const chip=document.createElement("span");
+    chip.className="section-chip student-chip";
+    chip.innerHTML=`<span>${name}</span><button type="button" aria-label="Remove ${name}">×</button>`;
+    chip.querySelector("button").addEventListener("click",()=>{
+      selectedStudentNames=selectedStudentNames.filter(n=>n!==name);
+      renderSelectedStudents(); draw();
+    });
+    selectedStudentsEl.appendChild(chip);
+  });
+}
+function addStudentByName(name){
+  if(!name || selectedStudentNames.includes(name)) return;
+  selectedStudentNames.push(name);
+  selectedStudentNames.sort((a,b)=>a.localeCompare(b));
+  renderSelectedStudents(); draw();
+}
+document.getElementById("addStudentBtn").addEventListener("click",()=>{addStudentByName(studentPicker.value);studentPicker.value=""});
+studentPicker.addEventListener("change",()=>{if(studentPicker.value){addStudentByName(studentPicker.value);studentPicker.value=""}});
+document.getElementById("clearStudentsBtn").addEventListener("click",()=>{selectedStudentNames=[];renderSelectedStudents();draw()});
+document.getElementById("selectAllStudentsBtn").addEventListener("click",()=>{selectedStudentNames=studentRaw.map(d=>d.name).sort((a,b)=>a.localeCompare(b));renderSelectedStudents();draw()});
+
+function selectStudent(d){
+  selectedStudent=d;
+  document.getElementById("studentEmpty").style.display="none";
+  document.getElementById("studentDetails").style.display="block";
+  document.getElementById("sdName").textContent=d.name;
+  document.getElementById("sdPlace").textContent=`${d.city}, ${d.state}`;
+  document.getElementById("sdRadius").textContent=`${studentRadiusEl.value} miles`;
+  const p=raw.map(x=>({...x,dist:hav(d.lat,d.lon,x.lat,x.lon)})).sort((a,b)=>a.dist-b.dist)[0];
+  document.getElementById("sdNearestPro").textContent=p?.name||"—";
+  document.getElementById("sdNearestDist").textContent=p?`${p.dist.toFixed(1)} mi`:"—";
+  draw();
+}
+function drawStudents(data){
+  studentRadiusValue.textContent=studentRadiusEl.value;
+  studentCoverageLayer.style("display",showStudentCoverage.checked?null:"none");
+  studentPointLayer.style("display",showStudents.checked?null:"none");
+  const circle=d3.geoCircle().radius((+studentRadiusEl.value)/69.093).precision(3);
+  studentCoverageLayer.selectAll("path").data(data,d=>d.name).join("path")
+    .attr("class","student-coverage")
+    .attr("d",d=>pathGeo(circle.center([d.lon,d.lat])()));
+  const pts=studentPointLayer.selectAll("circle").data(data.filter(d=>projection([d.lon,d.lat])),d=>d.name).join("circle")
+    .attr("class",d=>"student-point"+(selectedStudent&&selectedStudent.name===d.name?" selected":""))
+    .attr("r",3.2)
+    .attr("cx",d=>projection([d.lon,d.lat])[0]).attr("cy",d=>projection([d.lon,d.lat])[1]);
+  pts.on("pointerenter",(e,d)=>{
+      tip.innerHTML=`<strong>${d.name}</strong><br>${d.city}, ${d.state}<br><span style="color:#c05a19">Student Section</span>`;
+      tip.style.display="block"; const r=mapPanel.getBoundingClientRect();
+      tip.style.left=Math.min(e.clientX-r.left+12,r.width-270)+"px"; tip.style.top=Math.max(e.clientY-r.top-12,8)+"px";
+    })
+    .on("pointermove",(e,d)=>{
+      const r=mapPanel.getBoundingClientRect(); tip.style.left=Math.min(e.clientX-r.left+12,r.width-270)+"px";tip.style.top=Math.max(e.clientY-r.top-12,8)+"px";
+    })
+    .on("pointerleave",()=>tip.style.display="none")
+    .on("click",(e,d)=>{e.stopPropagation();selectStudent(d)});
+}
+
+function drawJurisdiction(data){
+  jurisdictionLayer.selectAll("*").remove();
+  if(!showJurisdiction.checked) return;
+
+  const membership=new Map();
+  for(const section of data){
+    const items=jurisdictionData[section.name]||[];
+    for(const item of items){
+      const fips=String(item.fips).padStart(5,"0");
+      if(!membership.has(fips)) membership.set(fips,{sections:[],partialOnly:true});
+      const rec=membership.get(fips);
+      rec.sections.push(section.name);
+      if(!item.partial) rec.partialOnly=false;
+    }
+  }
+
+  const features=counties.filter(c=>membership.has(String(c.id).padStart(5,"0")));
+  jurisdictionLayer.selectAll("path").data(features,d=>String(d.id).padStart(5,"0")).join("path")
+    .attr("d",pathProjected)
+    .attr("class",d=>{
+      const rec=membership.get(String(d.id).padStart(5,"0"));
+      return rec.partialOnly ? "jurisdiction-partial" : (rec.sections.length>1 ? "jurisdiction jurisdiction-overlap" : "jurisdiction");
+    })
+    .attr("fill-opacity",d=>{
+      const rec=membership.get(String(d.id).padStart(5,"0"));
+      return rec.partialOnly ? null : Math.min(.18 + .08*(rec.sections.length-1),.58);
+    })
+    .on("pointerenter",(e,d)=>{
+      const rec=membership.get(String(d.id).padStart(5,"0"));
+      tip.innerHTML=`<strong>Official ASME jurisdiction</strong><br>${rec.sections.join("<br>")}${rec.partialOnly?"<br><em>Partial county — exact sub-county boundary not drawn</em>":""}`;
+      tip.style.display="block";
+      const r=mapPanel.getBoundingClientRect();
+      tip.style.left=Math.min(e.clientX-r.left+12,r.width-290)+"px";
+      tip.style.top=Math.max(e.clientY-r.top-12,8)+"px";
+    })
+    .on("pointermove",(e)=>{
+      const r=mapPanel.getBoundingClientRect();
+      tip.style.left=Math.min(e.clientX-r.left+12,r.width-290)+"px";
+      tip.style.top=Math.max(e.clientY-r.top-12,8)+"px";
+    })
+    .on("pointerleave",()=>tip.style.display="none");
+}
+
+function draw(){
+  const data=visible(), studentData=visibleStudents(), miles=+radiusEl.value;
+  radiusValue.textContent=miles;
+  coverageLayer.style("display",showCoverage.checked?null:"none");
+  pointLayer.style("display",showPoints.checked?null:"none");
+  drawJurisdiction(data);
+  drawStudents(studentData);
+  const circle=d3.geoCircle().radius(miles/69.093).precision(3);
+  coverageLayer.selectAll("path").data(data,d=>d.name).join("path").attr("class","coverage").attr("d",d=>pathGeo(circle.center([d.lon,d.lat])()));
+  const pts=pointLayer.selectAll("circle").data(data.filter(d=>projection([d.lon,d.lat])),d=>d.name).join("circle")
+    .attr("class",d=>"point"+(selected&&selected.name===d.name?" selected":"")).attr("r",3.5)
+    .attr("cx",d=>projection([d.lon,d.lat])[0]).attr("cy",d=>projection([d.lon,d.lat])[1]);
+  pts.on("pointerenter",(e,d)=>showTip(e,d)).on("pointermove",(e,d)=>showTip(e,d)).on("pointerleave",()=>tip.style.display="none").on("click",(e,d)=>{e.stopPropagation();selectSection(d)});
+  drawSim(); analyze(data,miles,studentData); updateURL();
+}
+function showTip(e,d){
+  tip.innerHTML=`<strong>${d.name}</strong><br>${d.city}, ${d.state}<br>${d.territory}`;
+  tip.style.display="block"; const r=mapPanel.getBoundingClientRect();
+  tip.style.left=Math.min(e.clientX-r.left+12,r.width-270)+"px"; tip.style.top=Math.max(e.clientY-r.top-12,8)+"px";
+}
+function selectSection(d){
+  selected=d; document.getElementById("sectionEmpty").style.display="none";document.getElementById("sectionDetails").style.display="block";
+  document.getElementById("dName").textContent=d.name; document.getElementById("dPlace").textContent=`${d.city}, ${d.state}`;
+  document.getElementById("dTerritory").textContent=d.territory; document.getElementById("dRadius").textContent=`${radiusEl.value} miles`;
+  const j=jurisdictionData[d.name]||[];
+  document.getElementById("dJurisdiction").textContent=j.length ? `${j.length} county/parish unit${j.length===1?"":"s"} mapped from ASME territory listing${j.some(x=>x.partial)?" (includes partial county)":""}` : "County jurisdiction not yet mapped from ASME page";
+  const ns=nearestList(d); document.getElementById("dNearest").textContent=ns[0]?.name||"—"; document.getElementById("dNearestDist").textContent=ns[0]?`${ns[0].dist.toFixed(1)} mi`:"—";
+  document.getElementById("neighbors").innerHTML=ns.slice(0,3).map(n=>`<div class="neighbor"><span>${n.name}</span><strong>${n.dist.toFixed(1)} mi</strong></div>`).join("");
+  draw();
+}
+function drawSim(){
+  simLayer.selectAll("*").remove(); if(!sim)return;
+  const miles=+radiusEl.value, circle=d3.geoCircle().radius(miles/69.093).precision(3);
+  simLayer.append("path").attr("class","sim-coverage").attr("d",pathGeo(circle.center([sim.lon,sim.lat])()));
+  const p=projection([sim.lon,sim.lat]); if(p)simLayer.append("circle").attr("class","sim-point").attr("r",5).attr("cx",p[0]).attr("cy",p[1]);
+}
+function buildSamples(){
+  samples=[]; const svgNode=document.getElementById("map");
+  for(let y=30;y<=585;y+=14) for(let x=20;x<=955;x+=14){
+    const pt=svgNode.createSVGPoint();pt.x=x;pt.y=y;
+    let inside=false; for(const p of statePaths){ if(p.isPointInFill(pt)){inside=true;break} }
+    if(inside){const ll=projection.invert([x,y]); if(ll)samples.push({x,y,lon:ll[0],lat:ll[1]})}
+  }
+}
+function analyze(data,miles,studentData){
+  analysisLayer.selectAll("*").remove();
+  if(!samples.length)buildSamples();
+  const hubs=[...data]; if(includeStudentsMetrics.checked) hubs.push(...studentData); if(sim&&includeSimulator.checked) hubs.push({name:"Simulated Hub",...sim});
+  let covered=0,maxOverlap=0,simGain=0;
+  const grid=[];
+  for(const s of samples){
+    let c=0, base=0;
+    for(const d of data) if(hav(s.lat,s.lon,d.lat,d.lon)<=miles){c++;base++}
+    if(includeStudentsMetrics.checked){
+      const sm=+studentRadiusEl.value;
+      for(const d of studentData) if(hav(s.lat,s.lon,d.lat,d.lon)<=sm){c++;base++}
+    }
+    let total=c;
+    if(sim&&includeSimulator.checked && hav(s.lat,s.lon,sim.lat,sim.lon)<=miles){total++; if(base===0)simGain++}
+    if(total>0)covered++; if(total>maxOverlap)maxOverlap=total;
+    grid.push({...s,count:total});
+  }
+  const mode=modeEl.value;
+  if(mode==="overlap"){
+    const mx=Math.max(1,maxOverlap);
+    analysisLayer.selectAll("rect").data(grid.filter(g=>g.count>0)).join("rect")
+      .attr("class","grid-heat").attr("x",d=>d.x-7).attr("y",d=>d.y-7).attr("width",14).attr("height",14)
+      .attr("fill","#7b4ab5").attr("fill-opacity",d=>0.12+0.55*(d.count/mx));
+  } else if(mode==="gaps"){
+    analysisLayer.selectAll("rect").data(grid.filter(g=>g.count===0)).join("rect")
+      .attr("class","grid-gap").attr("x",d=>d.x-7).attr("y",d=>d.y-7).attr("width",14).attr("height",14);
+  }
+  const nearest=data.map(d=>nearestList(d,data)[0]?.dist).filter(Number.isFinite);
+  const avg=nearest.length?d3.mean(nearest):0, isolated=data.length===1 ? 1 : nearest.filter(v=>v>miles).length;
+  document.getElementById("mVisible").textContent=data.length;
+  document.getElementById("mStudents").textContent=studentData.length;
+  document.getElementById("mCovered").textContent=samples.length?`${(100*covered/samples.length).toFixed(1)}%`:"—";
+  document.getElementById("mOverlap").textContent=maxOverlap||0;
+  document.getElementById("mNearest").textContent=nearest.length?`${avg.toFixed(0)} mi`:"—";
+  document.getElementById("mIsolated").textContent=isolated;
+  document.getElementById("mSim").textContent=sim?"Placed":"None";
+  if(sim){
+    document.getElementById("simDetails").style.display="grid";
+    const n=raw.map(d=>({...d,dist:hav(sim.lat,sim.lon,d.lat,d.lon)})).sort((a,b)=>a.dist-b.dist)[0];
+    document.getElementById("sLoc").textContent=`${sim.lat.toFixed(2)}, ${sim.lon.toFixed(2)}`;
+    document.getElementById("sNear").textContent=n?.name||"—";document.getElementById("sDist").textContent=n?`${n.dist.toFixed(1)} mi`:"—";
+    document.getElementById("sGain").textContent=samples.length?`${(100*simGain/samples.length).toFixed(1)} percentage points`:"—";
+  } else document.getElementById("simDetails").style.display="none";
+}
+function resetFilters(){selectedSectionNames=[];renderSelectedSections();selectedStudentNames=[];renderSelectedStudents();stateEl.value="";territoryEl.value="";selected=null;selectedStudent=null;document.getElementById("sectionDetails").style.display="none";document.getElementById("sectionEmpty").style.display="block";draw()}
+document.getElementById("focusBtn").addEventListener("click",()=>{if(selected){selectedSectionNames=[selected.name];renderSelectedSections();stateEl.value="";territoryEl.value="";draw()}});
+document.getElementById("resetBtn").addEventListener("click",resetFilters);
+[radiusEl,studentRadiusEl,stateEl,territoryEl,modeEl,showCoverage,showJurisdiction,showPoints,showStudents,showStudentCoverage,includeStudentsMetrics,includeSimulator].forEach(el=>el.addEventListener("change",draw));
+radiusEl.addEventListener("input",draw);
+studentRadiusEl.addEventListener("input",draw);
+
+document.getElementById("simBtn").addEventListener("click",()=>{placingSim=true;document.getElementById("simBtn").textContent="Click the map…"});
+document.getElementById("clearSimBtn").addEventListener("click",()=>{sim=null;placingSim=false;document.getElementById("simBtn").textContent="Place simulated hub";draw()});
+svg.on("click",(event)=>{
+  if(!placingSim)return;
+  const [x,y]=d3.pointer(event,svg.node());
+  const ll=projection.invert([x,y]);
+  if(!ll)return;
+  const pt=svg.node().createSVGPoint(); pt.x=x; pt.y=y;
+  const onLand=statePaths.some(p=>p.isPointInFill(pt));
+  if(!onLand){
+    document.getElementById("simBtn").textContent="Choose U.S. land…";
+    return;
+  }
+  sim={lon:ll[0],lat:ll[1]}; placingSim=false; document.getElementById("simBtn").textContent="Place simulated hub"; draw();
+});
+
+function exportCSV(){
+  const rows=[["Type","Section","City","State","Territory","Radius Miles","Official Jurisdiction Mapped","County/Parish Units"],
+    ...visible().map(d=>["Professional Section",d.name,d.city,d.state,d.territory,radiusEl.value,(jurisdictionData[d.name]||[]).length?"Yes":"No",(jurisdictionData[d.name]||[]).length]),
+    ...visibleStudents().map(d=>["Student Section",d.name,d.city,d.state,"",studentRadiusEl.value,"N/A","N/A"])
+  ];
+  const csv=rows.map(r=>r.map(v=>`"${String(v).replaceAll('"','""')}"`).join(",")).join("\n");
+  const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([csv],{type:"text/csv"}));a.download="asme_visible_sections.csv";a.click();URL.revokeObjectURL(a.href);
+}
+document.getElementById("csvBtn").addEventListener("click",exportCSV);
+
+document.getElementById("pngBtn").addEventListener("click",()=>{
+  const node=svg.node();
+  const clone=node.cloneNode(true);
+
+  // Inline visual styles so they survive SVG serialization.
+  clone.querySelectorAll(".state").forEach(el=>{
+    el.setAttribute("fill","#f8fafc");
+    el.setAttribute("stroke","#c9d2df");
+    el.setAttribute("stroke-width","0.75");
+  });
+  clone.querySelectorAll(".jurisdiction").forEach(el=>{
+    el.setAttribute("fill","#16836b");
+    if(!el.getAttribute("fill-opacity")) el.setAttribute("fill-opacity","0.20");
+    el.setAttribute("stroke","#0e6b59");
+    el.setAttribute("stroke-opacity","0.72");
+    el.setAttribute("stroke-width","0.55");
+  });
+  clone.querySelectorAll(".jurisdiction-partial").forEach(el=>{
+    el.setAttribute("fill","url(#partialHatch)");
+    el.setAttribute("stroke","#0e6b59");
+    el.setAttribute("stroke-opacity","0.95");
+    el.setAttribute("stroke-width","1");
+    el.setAttribute("stroke-dasharray","4 2");
+  });
+  clone.querySelectorAll(".coverage").forEach(el=>{
+    el.setAttribute("fill","#1268a8");
+    el.setAttribute("fill-opacity","0.10");
+    el.setAttribute("stroke","#1268a8");
+    el.setAttribute("stroke-opacity","0.28");
+    el.setAttribute("stroke-width","0.65");
+  });
+  clone.querySelectorAll(".student-coverage").forEach(el=>{
+    el.setAttribute("fill","#c05a19");
+    el.setAttribute("fill-opacity","0.09");
+    el.setAttribute("stroke","#c05a19");
+    el.setAttribute("stroke-opacity","0.32");
+    el.setAttribute("stroke-width","0.7");
+  });
+  clone.querySelectorAll(".student-point").forEach(el=>{
+    el.setAttribute("fill",el.classList.contains("selected") ? "#7c2d12" : "#c05a19");
+    el.setAttribute("stroke","#ffffff");
+    el.setAttribute("stroke-width",el.classList.contains("selected") ? "2" : "1.2");
+  });
+  clone.querySelectorAll(".point").forEach(el=>{
+    el.setAttribute("fill",el.classList.contains("selected") ? "#d96b18" : "#1268a8");
+    el.setAttribute("stroke","#ffffff");
+    el.setAttribute("stroke-width",el.classList.contains("selected") ? "2" : "1.2");
+  });
+  clone.querySelectorAll(".sim-point").forEach(el=>{
+    el.setAttribute("fill","#111827");
+    el.setAttribute("stroke","#ffffff");
+    el.setAttribute("stroke-width","1.6");
+  });
+  clone.querySelectorAll(".sim-coverage").forEach(el=>{
+    el.setAttribute("fill","#111827");
+    el.setAttribute("fill-opacity","0.08");
+    el.setAttribute("stroke","#111827");
+    el.setAttribute("stroke-width","1.4");
+    el.setAttribute("stroke-dasharray","5 4");
+  });
+  clone.querySelectorAll(".grid-gap").forEach(el=>{
+    el.setAttribute("fill","#c2413a");
+    el.setAttribute("fill-opacity","0.36");
+    el.setAttribute("stroke","none");
+  });
+  clone.querySelectorAll(".grid-heat").forEach(el=>{
+    // Preserve any heatmap opacity already calculated on the live SVG.
+    const liveOpacity=el.getAttribute("fill-opacity") || "0.35";
+    el.setAttribute("fill","#7b4ab5");
+    el.setAttribute("fill-opacity",liveOpacity);
+    el.setAttribute("stroke","none");
+  });
+
+  clone.setAttribute("xmlns","http://www.w3.org/2000/svg");
+  clone.setAttribute("width","975");
+  clone.setAttribute("height","610");
+
+  const xml=new XMLSerializer().serializeToString(clone);
+  const img=new Image();
+  const blob=new Blob([xml],{type:"image/svg+xml;charset=utf-8"});
+  const url=URL.createObjectURL(blob);
+
+  img.onload=()=>{
+    const scale=2;
+    const c=document.createElement("canvas");
+    c.width=975*scale;
+    c.height=610*scale;
+    const ctx=c.getContext("2d");
+    ctx.scale(scale,scale);
+    ctx.fillStyle="#ffffff";
+    ctx.fillRect(0,0,975,610);
+    ctx.drawImage(img,0,0,975,610);
+    URL.revokeObjectURL(url);
+
+    const a=document.createElement("a");
+    a.download=`asme_coverage_map_${radiusEl.value}mi.png`;
+    a.href=c.toDataURL("image/png");
+    a.click();
+  };
+
+  img.onerror=()=>{
+    URL.revokeObjectURL(url);
+    alert("PNG export failed. Please try again.");
+  };
+
+  img.src=url;
+});
+
+function updateURL(){
+  const p=new URLSearchParams();
+  if(selectedSectionNames.length)p.set("sections",selectedSectionNames.join("|"));
+  if(selectedStudentNames.length)p.set("students",selectedStudentNames.join("|"));
+  if(stateEl.value)p.set("state",stateEl.value);
+  if(territoryEl.value)p.set("territory",territoryEl.value);
+  p.set("radius",radiusEl.value);
+  p.set("studentRadius",studentRadiusEl.value);
+  p.set("mode",modeEl.value);
+  p.set("coverage",showCoverage.checked?"1":"0");
+  p.set("jurisdiction",showJurisdiction.checked?"1":"0");
+  p.set("studentPoints",showStudents.checked?"1":"0");
+  p.set("studentCoverage",showStudentCoverage.checked?"1":"0");
+  p.set("studentMetrics",includeStudentsMetrics.checked?"1":"0");
+  p.set("points",showPoints.checked?"1":"0");
+  p.set("simmetrics",includeSimulator.checked?"1":"0");
+  if(sim){p.set("simlat",sim.lat.toFixed(4));p.set("simlon",sim.lon.toFixed(4))}
+  try{
+    history.replaceState(null,"",location.pathname+"?"+p.toString());
+  }catch(err){
+    // Some browsers restrict History API changes for local file:// pages.
+  }
+}
+document.getElementById("linkBtn").addEventListener("click",async()=>{
+  try{await navigator.clipboard.writeText(location.href);document.getElementById("copyMsg").textContent="Settings URL copied."}
+  catch{document.getElementById("copyMsg").textContent="Clipboard access is unavailable here; copy the current browser URL manually."}
+});
+function loadURL(){
+  const p=new URLSearchParams(location.search);
+  if(p.get("sections"))selectedSectionNames=p.get("sections").split("|").filter(n=>raw.some(d=>d.name===n));
+  if(p.get("students"))selectedStudentNames=p.get("students").split("|").filter(n=>studentRaw.some(d=>d.name===n));
+  if(p.get("state"))stateEl.value=p.get("state");
+  if(p.get("territory"))territoryEl.value=p.get("territory");
+  if(p.get("radius"))radiusEl.value=Math.max(10,Math.min(150,+p.get("radius")));
+  if(p.get("studentRadius"))studentRadiusEl.value=Math.max(10,Math.min(150,+p.get("studentRadius")));
+  if(["coverage","overlap","gaps"].includes(p.get("mode")))modeEl.value=p.get("mode");
+  if(p.has("coverage"))showCoverage.checked=p.get("coverage")!=="0";
+  if(p.has("jurisdiction"))showJurisdiction.checked=p.get("jurisdiction")!=="0";
+  if(p.has("studentPoints"))showStudents.checked=p.get("studentPoints")!=="0";
+  if(p.has("studentCoverage"))showStudentCoverage.checked=p.get("studentCoverage")!=="0";
+  if(p.has("studentMetrics"))includeStudentsMetrics.checked=p.get("studentMetrics")!=="0";
+  if(p.has("points"))showPoints.checked=p.get("points")!=="0";
+  if(p.has("simmetrics"))includeSimulator.checked=p.get("simmetrics")!=="0";
+  if(p.get("simlat")&&p.get("simlon"))sim={lat:+p.get("simlat"),lon:+p.get("simlon")};
+}
+loadURL(); renderSelectedSections(); renderSelectedStudents(); document.getElementById("status").remove(); draw();
+</script>
+</body>
+</html>
